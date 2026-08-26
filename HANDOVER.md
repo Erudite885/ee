@@ -477,13 +477,61 @@ Shared chrome: sticky glass navbar, mega-footer with sitemap/social/newsletter.
 
 ## Session 9 — Case Studies
 
-- **Status:** NOT STARTED
+- **Status:** DONE
 - **Scope:** Build `/case-studies` index (grid of `CaseStudyCard`) and
   `/case-studies/[slug]` dynamic detail page. Static data source (local
   JSON/TS array) is fine — no CMS.
 - **What changed:**
-- **Repo state:**
-- **Next session starts at:**
+  - Ran `npm install` (no-op, no new deps) then attempted `npm run build` —
+    same known sandbox font-fetch limitation as every prior session (no
+    network route to `fonts.googleapis.com` for Inter/JetBrains Mono),
+    nothing new. Verified instead with `npx tsc --noEmit` and `npx eslint .`
+    — both clean. Note: a bare `tsc --noEmit` before any build/dev run will
+    fail on `app/layout.tsx` with `Cannot find name 'LayoutProps'` — that's
+    Next 16's route-typegen (`.next/types`) not having been generated yet,
+    not a real defect. It resolves itself once `next build`/`next dev` has
+    run once (even a build that later fails on the font-fetch step still
+    generates `.next/types` first). Future sessions hitting that specific
+    error should not treat it as a regression.
+  - `lib/case-studies.ts` — new static data source (local TS array, no CMS,
+    per session scope). Exports a `CaseStudy` interface (slug, client,
+    industry, title, summary, `challenge`/`approach`/`results` as paragraph
+    arrays, and a small `metrics` array) plus `CASE_STUDIES` and a
+    `getCaseStudy(slug)` lookup helper. Three case studies, deliberately
+    reusing the Northwind / Globex / Vertex Labs placeholder client names
+    from Session 5's `LogoStrip` and Session 6's `Testimonials` for
+    narrative consistency across the site — swap all three together before
+    launch, not just this file.
+  - `components/case-study-card.tsx` — new `CaseStudyCard`. Built on
+    `GlassCard` per the established pattern. Uses a stretched-link (`<Link>`
+    with `absolute inset-0` span) so the whole card is clickable, not just
+    the "Read case study" text, while keeping a single accessible link per
+    card. Shows the top two metrics inline as a preview of the detail page.
+  - `app/case-studies/page.tsx` — new index route. `PageHeader` (reused per
+    Session 7/8 convention) → responsive grid of `CaseStudyCard`. Own
+    `metadata` export.
+  - `app/case-studies/[slug]/page.tsx` — new dynamic detail route. Next 16
+    App Router: `params` is a `Promise<{ slug: string }>`, awaited in both
+    `generateMetadata` and the page component — this is the reference
+    pattern for any later dynamic route (Session 12's `/blog/[slug]` should
+    follow the same shape). `generateStaticParams` pre-renders all three
+    known slugs; an unknown slug calls `notFound()` from `next/navigation`.
+    Layout: back-link → header block (client/industry/title/summary,
+    styled consistently with `PageHeader` but not reusing it directly since
+    it needs the back-link and eyebrow row above the title) → a
+    `GlassCard`-based metrics strip (`flare={false}`, dense stat grid reads
+    better without the hover pop) → challenge/approach/results sections as
+    paragraph copy.
+  - No changes to `components/navbar.tsx` or `components/footer.tsx` — both
+    already linked to `/case-studies` since Session 3, so the route now
+    resolves instead of 404ing. No dependency changes.
+- **Repo state:** `lib/case-studies.ts`, `components/case-study-card.tsx`,
+  `app/case-studies/page.tsx`, `app/case-studies/[slug]/page.tsx` added. No
+  other files touched, no dependency changes.
+- **Next session starts at:** Session 10 below (Pricing page). Use
+  `PageHeader` for the title block per the established convention, and log
+  the monthly/annual toggle decision (yes/no) in the Decision Log below
+  regardless of which way it goes.
 
 ---
 
