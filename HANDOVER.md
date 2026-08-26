@@ -513,7 +513,7 @@ Shared chrome: sticky glass navbar, mega-footer with sitemap/social/newsletter.
 - **Status:** NOT STARTED
 - **Scope:** Build `/api/contact` route handler (server-side Zod validation,
   rate-limit/spam protection via honeypot + minimum submit delay, integration
-  with chosen email provider — decide and log below: Resend/Postmark/SMTP).
+  with chosen email provider — SMTP - send to contact@edgesenterprise.com).
   Wire `ContactForm` submit to the real endpoint with animated success/error
   state. Build `/legal/privacy`, `/legal/terms`, custom `not-found.tsx` and
   `error.tsx` (on-brand, reusing `GlassCard`/`PageHeader`).
