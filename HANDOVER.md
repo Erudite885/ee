@@ -720,14 +720,55 @@ Shared chrome: sticky glass navbar, mega-footer with sitemap/social/newsletter.
 
 ## Session 13 — Contact Page (UI only)
 
-- **Status:** NOT STARTED
+- **Status:** DONE
 - **Scope:** Build `/contact` page UI: `ContactForm` component (Name, Work
   Email, Company, Message, optional Phone, honeypot field), Zod validation
   schema, React Hook Form wiring, inline field errors, disabled+spinner submit
   state. Office info block. No backend route yet — form submit can be stubbed.
 - **What changed:**
-- **Repo state:**
-- **Next session starts at:**
+  - New deps: `react-hook-form@7`, `zod@4`, `@hookform/resolvers@5`
+    (`@hookform/resolvers/zod` for `zodResolver`).
+  - `lib/validation.ts` — new. `contactFormSchema` (name, email, companyName,
+    optional phone, message 20–2000 chars, `website` honeypot). Deliberately
+    written to be reused byte-for-byte as server-side validation in Session
+    14 — don't fork it, import it in the future `/api/contact` route.
+  - `components/contact-form.tsx` — new `ContactForm`, client component.
+    react-hook-form + `zodResolver`, inline per-field error messages, a
+    visually-hidden (not `display:none`/`type="hidden"` — both are honeypot
+    tells unsophisticated bots specifically check for) `website` field bots
+    fill but humans never see or tab into. Submit is a **stub**
+    (`setTimeout` simulating a network call, marked
+    `// TODO(Session 14): replace with fetch("/api/contact", ...)`) — full
+    idle → submitting (spinner, disabled button) → success (swaps the whole
+    form for a confirmation card with a "send another" reset) → error state
+    machine is already built, so Session 14 only needs to swap the stub body,
+    not rebuild the states.
+  - Note: `GlassCard` (Session 2) only renders a `<div>`, no polymorphic `as`
+    prop — `ContactForm` wraps it in a real `<form>` element rather than
+    trying to pass `as="form"`, which would have silently done nothing.
+  - `components/office-info.tsx` — new `OfficeInfo`. Static sidebar:
+    `hello@company.com` (same address already used in `components/footer.tsx`
+    since Session 3 — kept consistent, not a new address), response-time
+    note, three office locations (San Francisco HQ, Berlin engineering hub,
+    Remote).
+  - `app/contact/page.tsx` — new route (previously 404ing despite nav/footer
+    linking to it since Session 3). `PageHeader` → two-column layout
+    (`ContactForm` + `OfficeInfo` on `lg:`, stacked below), own `metadata`.
+  - Verified clean: `npx tsc --noEmit` (0 errors), `npx eslint .`
+    (0 errors — caught and fixed one `@next/next/no-html-link-for-pages`
+    from an internal `<a>` in the success-state copy, swapped for
+    `next/link`), `npm run build` stops only at the known sandbox font-fetch
+    step, nothing new.
+- **Repo state:** `lib/validation.ts`, `components/contact-form.tsx`,
+  `components/office-info.tsx`, `app/contact/page.tsx` added.
+  `package.json`/`package-lock.json` updated with the 3 new deps. Confirmed
+  via `git status` before commit and `git show --stat` after — all new files
+  present, no repeat of the Session 11 gap.
+- **Next session starts at:** Session 14 below (Contact Backend +
+  Legal/Error Pages). Import `contactFormSchema` from `lib/validation.ts`
+  unmodified for server-side validation in `/api/contact`, and wire
+  `ContactForm`'s stub `onSubmit` to a real `fetch` call per the TODO comment
+  left in that file.
 
 ---
 
