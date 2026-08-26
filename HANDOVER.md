@@ -99,7 +99,7 @@ Shared chrome: sticky glass navbar, mega-footer with sitemap/social/newsletter.
 
 ## Session 1 — Project Scaffold
 
-- **Status:** NOT STARTED
+- **Status:** DONE
 - **Scope:** Run `npx create-next-app@latest` for Next.js 16 + TypeScript +
   Tailwind CSS v4 + App Router. Set up folder structure (`app/`, `components/`,
   `lib/`), ESLint/Prettier config, base `globals.css` with theme CSS variables
@@ -107,8 +107,52 @@ Shared chrome: sticky glass navbar, mega-footer with sitemap/social/newsletter.
   font setup (next/font, variable sans font). No components or pages beyond the
   default shell yet.
 - **What changed:**
-- **Repo state:**
-- **Next session starts at:**
+  - Scaffolded with `create-next-app@latest` → Next.js **16.3.3**, TypeScript,
+    Tailwind CSS v4, App Router, ESLint, no `src/` dir, `@/*` import alias.
+  - Removed generator cruft not needed for this project: `README.md`,
+    `CLAUDE.md`, `AGENTS.md`.
+  - `app/globals.css` rewritten with the full theme token set: `--background`,
+    `--foreground`, `--muted`, `--accent`, `--accent-2`, plus **glass tokens**
+    (`--glass-bg`, `--glass-border`, `--glass-shadow`) and **bubble tokens**
+    (`--bubble-1`, `--bubble-2`) for both light `:root` and
+    `@media (prefers-color-scheme: dark)` — Session 2 should consume these
+    directly rather than inventing new color values. `color-scheme: light dark`
+    set on `:root` for native no-flash form control theming. Added a global
+    `prefers-reduced-motion` block that collapses animation/transition duration
+    — later sessions doing bubble drift / hover flare must not fight this.
+  - `app/layout.tsx`: swapped Geist for **Inter** (sans, var `--font-body`) and
+    **JetBrains Mono** (mono, var `--font-body-mono`) via `next/font/google`,
+    mapped into Tailwind's `--font-sans` / `--font-mono` theme tokens in
+    `globals.css`. `suppressHydrationWarning` added on `<html>` (standard
+    practice for system-theme-driven sites). Metadata title/description are
+    placeholders — Session 4+ (Hero) or whichever session owns SEO copy should
+    replace them, not before.
+  - `app/page.tsx` replaced with a minimal placeholder confirming the shell
+    renders — **not** the real home page. Session 4 (Hero) starts by replacing
+    this file's contents, not editing around it.
+  - `lib/utils.ts` added: a `cn()` classname helper (using `clsx`, added as a
+    dependency). No `tailwind-merge` yet — add it in a later session only if
+    class-conflict bugs actually appear.
+  - `components/` created (empty, `.gitkeep` only) — Session 2 is the first to
+    put files here.
+  - Verified with `npx tsc --noEmit` (clean) and `npx eslint .` (clean).
+    **`npm run build` was not run to completion in the sandbox** — the sandbox
+    has no network route to `fonts.googleapis.com`, so `next/font/google`
+    cannot fetch Inter/JetBrains Mono here. This is a sandbox restriction only;
+    it will build normally on a machine with normal internet access. Session 2
+    should run `npm run build` for the first real build verification and
+    report the result in its own entry.
+- **Repo state:** Full Next.js 16 app scaffold at repo root (`app/`,
+  `components/`, `lib/`, `public/`, config files, `package.json` +
+  `package-lock.json`). `node_modules/` git-ignored (not part of the patch —
+  next session must run `npm install` after applying this patch, before doing
+  anything else). `BLUEPRINT.md` and `HANDOVER.md` unchanged in location, this
+  entry updated in place.
+- **Next session starts at:** Session 2 below. Before writing any code, Session 2
+  must run `npm install` (to restore `node_modules`, which is not in the patch)
+  then `npm run build` once to confirm the scaffold builds clean end-to-end on
+  a machine with real network access, and record that result at the top of its
+  own "What changed."
 
 ---
 

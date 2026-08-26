@@ -1,0 +1,71 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: light dark;
+
+  /* Base surface / text */
+  --background: #ffffff;
+  --foreground: #0a0a0a;
+
+  /* Muted / secondary text */
+  --muted: #52525b;
+
+  /* Brand accent (techy blue/violet) */
+  --accent: #6366f1;
+  --accent-2: #22d3ee;
+
+  /* Glass surface tokens (Session 2 consumes these) */
+  --glass-bg: rgba(255, 255, 255, 0.6);
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --glass-shadow: rgba(15, 23, 42, 0.08);
+
+  /* Bubble gradient tokens (Session 2 consumes these) */
+  --bubble-1: rgba(99, 102, 241, 0.35);
+  --bubble-2: rgba(34, 211, 238, 0.3);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-2: var(--accent-2);
+  --font-sans: var(--font-body);
+  --font-mono: var(--font-body-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #f4f4f5;
+    --muted: #a1a1aa;
+
+    --glass-bg: rgba(255, 255, 255, 0.06);
+    --glass-border: rgba(255, 255, 255, 0.12);
+    --glass-shadow: rgba(0, 0, 0, 0.4);
+
+    --bubble-1: rgba(99, 102, 241, 0.45);
+    --bubble-2: rgba(34, 211, 238, 0.4);
+  }
+}
+
+* {
+  border-color: var(--glass-border);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
