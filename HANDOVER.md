@@ -587,12 +587,32 @@ Shared chrome: sticky glass navbar, mega-footer with sitemap/social/newsletter.
 
 ## Session 11 — Careers Page
 
-- **Status:** NOT STARTED
+- **Status:** DONE
 - **Scope:** Build `/careers`: culture/values blurb section, open-roles list
   (static data source, no ATS integration).
 - **What changed:**
-- **Repo state:**
-- **Next session starts at:**
+  - `lib/careers.ts` — new static data source. `Role` interface plus
+    `OPEN_ROLES` array with 6 placeholder positions (Senior Frontend Engineer,
+    Platform Engineer, Product Designer, Customer Success Manager, Security
+    Engineer, Technical Writer). Each role has title, department, location,
+    type, description, and requirements list. No ATS integration; "Apply"
+    links route to `/contact`.
+  - `components/open-roles.tsx` — new `OpenRoles` component. Renders each role
+    as a `GlassCard` in a 2-column grid. Displays department/location/type
+    metadata with `lucide-react` icons (`Building2`, `MapPin`, `Clock`).
+    Requirements rendered as a bulleted list with accent dots (same pattern
+    as `ServicesGrid`). "Apply for this role" link routes to `/contact` with
+    an `ArrowRight` icon.
+  - `app/careers/page.tsx` — new route. `PageHeader` → culture/values section
+    (inline text + 2×2 value grid: Remote-first, Deep work, Own the outcome,
+    Grow in public) → open roles section with centered heading + `OpenRoles`.
+    Own `metadata` export. No closing `CTASection` — consistent with other
+    interior pages. The navbar already linked to `/careers` since Session 3,
+    so the route now resolves instead of 404ing.
+  - No dependency changes. `tsc --noEmit` and `eslint .` both clean.
+- **Repo state:** `lib/careers.ts`, `components/open-roles.tsx`,
+  `app/careers/page.tsx` added. No other files touched.
+- **Next session starts at:** Session 12 below (Blog).
 
 ---
 
