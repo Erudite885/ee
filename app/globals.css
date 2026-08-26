@@ -32,6 +32,13 @@
   --color-accent-2: var(--accent-2);
   --font-sans: var(--font-body);
   --font-mono: var(--font-body-mono);
+
+  /* Glass / bubble radius, blur, shadow tokens — components reference these
+     via Tailwind utilities (rounded-glass, blur-glass, shadow-glass) instead
+     of ad-hoc values, so every glass surface in the site stays consistent. */
+  --radius-glass: 1rem;
+  --blur-glass: 20px;
+  --shadow-glass: 0 8px 30px var(--glass-shadow);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -67,5 +74,46 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* Cursor-following flare spotlight, driven by --x/--y from useHoverFlare
+   (see lib/use-hover-flare.ts). Defaults to centered so cards look correct
+   before any pointer interaction, and on touch devices where the hook never
+   fires. Sits behind content (z-index via stacking, GlassCard is
+   position: relative + overflow-hidden). */
+.glass-card {
+  --x: 50%;
+  --y: 50%;
+}
+
+.glass-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0;
+  transition: opacity 0.3s ease-out;
+  background: radial-gradient(
+    circle at var(--x) var(--y),
+    var(--accent) 0%,
+    transparent 55%
+  );
+  mix-blend-mode: soft-light;
+  pointer-events: none;
+}
+
+.glass-card:hover::before {
+  opacity: 0.5;
+}
+
+.glass-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glass-card::before {
+    display: none;
   }
 }

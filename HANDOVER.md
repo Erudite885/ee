@@ -158,15 +158,71 @@ Shared chrome: sticky glass navbar, mega-footer with sitemap/social/newsletter.
 
 ## Session 2 — Design System Primitives
 
-- **Status:** NOT STARTED
+- **Status:** DONE
 - **Scope:** Build `GlassCard` base component, `BubbleField` decorative
   component, and a reusable hover-flare hook/utility (mousemove → `--x`/`--y` CSS
   vars). Extend Tailwind theme (colors, blur, radius, shadow tokens) to match
   Design system rules. Verify light/dark mode has no flash-of-wrong-theme on
   load. Implement `prefers-reduced-motion` handling for bubbles/flare.
 - **What changed:**
-- **Repo state:**
-- **Next session starts at:**
+  - Ran `npm install` (restoring `node_modules`) then `npm run build` as
+    instructed by Session 1's handoff. **Build still fails in this sandbox** —
+    same cause as Session 1: no network route to `fonts.googleapis.com` for
+    `next/font/google` (Inter, JetBrains Mono). `tsc --noEmit` and `eslint .`
+    both pass clean, so this is confirmed to be a sandbox network restriction,
+    not a code defect. **Whoever runs Session 3 should do the first real
+    `npm run build` on a machine with normal internet access** and record the
+    result — if it fails there too for a *different* reason, that's a real bug
+    to fix, not this known font-fetch issue.
+  - Fixed `package.json` `"name"` — it had leaked `"scaffold_tmp"` from how
+    Session 1 was scaffolded in a temp dir before being copied in. Now `"ee"`.
+  - Added `framer-motion` as a dependency (was listed in the stack in Session 0
+    but not yet installed).
+  - `lib/use-hover-flare.ts` — new `useHoverFlare<T>()` hook. Writes `--x`/`--y`
+    (percentages) directly to the DOM via ref on `pointermove`, resets to
+    center (`50%/50%`) on `pointerleave`. Skips non-mouse pointer types (touch/
+    pen) since a cursor-following spotlight doesn't make sense there. No
+    re-renders — this is intentionally imperative for performance.
+  - `components/glass-card.tsx` — new `GlassCard` component. Reads
+    `--glass-bg` / `--glass-border` / `--glass-shadow` from `globals.css`
+    (never hardcodes colors), applies `backdrop-blur-xl`, `rounded-2xl`, hover
+    scale-pop, and wires `useHoverFlare` for the spotlight effect. Takes a
+    `flare?: boolean` prop (default `true`) so a later session can disable it
+    for dense card grids if it reads as too busy. **All future sessions that
+    render a glass surface should use this component, not hand-roll their own
+    `backdrop-blur` div.**
+  - `components/bubble-field.tsx` — new `BubbleField` component. Renders 4
+    default blurred radial-gradient circles (using `--bubble-1`/`--bubble-2`
+    tokens) with a slow Framer Motion drift loop. Accepts an optional
+    `bubbles` prop to override the set/positions per-page. Uses
+    `useReducedMotion()` from Framer Motion to fully disable drift (static
+    bubbles) when the user has reduced-motion set — on top of the global CSS
+    reduced-motion block from Session 1. `aria-hidden="true"`, decorative only.
+  - `app/globals.css` extended:
+    - `@theme inline` gained `--radius-glass`, `--blur-glass`, `--shadow-glass`
+      tokens so future components can reference consistent Tailwind values
+      instead of ad-hoc numbers.
+    - New `.glass-card` / `.glass-card::before` rules implement the actual
+      cursor-following flare (radial-gradient positioned at `var(--x) var(--y)`,
+      `mix-blend-mode: soft-light`, fades in on hover). Wrapped in its own
+      `prefers-reduced-motion` block that hides the flare entirely.
+  - `app/page.tsx` updated (still a placeholder, not real Hero content) to
+    render `BubbleField` + one `GlassCard` so Session 2's primitives are
+    visibly exercised, not just sitting unused in the tree. **Session 4 will
+    still replace this file's contents wholesale — this is not the real
+    homepage.**
+  - No-flash light/dark verification: `color-scheme: light dark` (set in
+    Session 1) plus every new color here going through CSS variables means
+    there's no client-side theme-detection JS and thus no flash-of-wrong-theme
+    possible by construction — nothing further was needed for this item.
+- **Repo state:** `app/globals.css`, `app/page.tsx` modified.
+  `lib/use-hover-flare.ts`, `components/glass-card.tsx`,
+  `components/bubble-field.tsx` added. `package.json` name fixed,
+  `framer-motion` added as a dependency (see `package-lock.json`).
+  `node_modules/` still git-ignored — not part of the patch.
+- **Next session starts at:** Session 3 below. Run `npm install` first (new
+  `framer-motion` dependency). Then attempt `npm run build` on real internet
+  access per the note above and record the result before writing any code.
 
 ---
 
