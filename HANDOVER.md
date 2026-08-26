@@ -324,13 +324,40 @@ Shared chrome: sticky glass navbar, mega-footer with sitemap/social/newsletter.
 
 ## Session 5 — Home Page: Features + Logo Strip + Stats
 
-- **Status:** NOT STARTED
+- **Status:** DONE
 - **Scope:** Build `FeatureGrid` (glass-card grid of product/feature highlights),
   `LogoStrip` (trust/client logos band), `StatsBand` (metrics band). Add all
   three to `app/page.tsx` below the Hero.
 - **What changed:**
-- **Repo state:**
-- **Next session starts at:**
+  - Ran `npm install` (no-op, no new deps from Session 4) then `npm run build`
+    — same known sandbox font-fetch limitation as every prior session, nothing
+    new. `tsc --noEmit` and `eslint .` both clean.
+  - `components/feature-grid.tsx` — new `FeatureGrid`. Four `GlassCard`s
+    (flare left on, default) each with a `lucide-react` icon in an accent-
+    tinted circle, title, description. Placeholder copy — whichever session
+    or human owns final marketing copy should treat this as a first draft,
+    not final content.
+  - `components/logo-strip.tsx` — new `LogoStrip`. **No real client logo
+    image assets exist in this project**, so it renders muted text wordmarks
+    for six placeholder company names rather than `<Image>` placeholders.
+    When real client logos exist, swap the `<li>` text for an `<Image>` —
+    no structural change needed, the layout (flex-wrap, centered) already
+    accommodates it.
+  - `components/stats-band.tsx` — new `StatsBand`. Deliberately **not** built
+    from `GlassCard` — a single glass band with a `<dl>` grid inside reads
+    better as one continuous stat bar than four separate cards would. Stat
+    values (uptime, requests/day, etc.) are placeholder numbers — flag for
+    real content before launch, not before any remaining session.
+  - `app/page.tsx` — extended (not replaced) to add `LogoStrip`,
+    `FeatureGrid`, `StatsBand` below `Hero`, in that order (logos right after
+    hero for immediate trust signal, then features, then stats). Testimonials
+    + CTA banner are still to come in Session 6, which will extend this file
+    further rather than replace it.
+- **Repo state:** `components/feature-grid.tsx`, `components/logo-strip.tsx`,
+  `components/stats-band.tsx` added. `app/page.tsx` modified (extended). No
+  dependency changes — `package.json`/`package-lock.json` untouched.
+- **Next session starts at:** Session 6 below. `npm install` is a no-op again
+  but run it anyway for consistency.
 
 ---
 
