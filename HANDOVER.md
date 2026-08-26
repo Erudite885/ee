@@ -537,12 +537,51 @@ Shared chrome: sticky glass navbar, mega-footer with sitemap/social/newsletter.
 
 ## Session 10 — Pricing Page
 
-- **Status:** NOT STARTED
+- **Status:** DONE
 - **Scope:** Build `/pricing`: tiered `PricingCard` glass cards, optional
   monthly/annual toggle (session decides and logs the decision below if added).
 - **What changed:**
-- **Repo state:**
-- **Next session starts at:**
+  - Ran `npm install` (fresh sandbox, `node_modules` wasn't present — 376
+    packages, 0 vulnerabilities) then `npm run build` — same known
+    font-fetch limitation as every prior session (403 from
+    `fonts.googleapis.com` for Inter/JetBrains Mono under Turbopack),
+    nothing new, but it did its usual job of generating `.next/types` so
+    `tsc --noEmit` has `LayoutProps` available. Verified with
+    `npx tsc --noEmit` and `npx eslint .` — both clean after one fix (see
+    below).
+  - `components/pricing-card.tsx` — new `PricingCard`. Built on `GlassCard`
+    per the established pattern, `flare={false}` on the highlighted tier
+    specifically (its accent border/badge already draws the eye; the cursor
+    spotlight competed with that rather than adding to it). Handles a
+    `monthlyPrice`/`annualPrice` pair plus a `billingPeriod` prop and
+    renders "Custom" instead of a number when both prices are `null`
+    (Enterprise tier). Feature list uses `Check` icons in the accent color,
+    matching `ServicesGrid`'s bullet-list treatment but with icons instead
+    of dots since this list is the primary sell here.
+  - `components/pricing-grid.tsx` — new `PricingGrid`, `"use client"`. Holds
+    the monthly/annual toggle state (`useState`) and the three tier
+    definitions (`TIERS`, `as const`). This is the only client boundary the
+    pricing page needs — `app/pricing/page.tsx` itself stays a server
+    component. Annual prices are precomputed per-tier in the data (not
+    derived from a shared percentage at render time) so each tier rounds to
+    a clean number instead of showing cents.
+  - `app/pricing/page.tsx` — new route. `PageHeader` (same convention as
+    Sessions 7/8/9) → `PricingGrid`. Own `metadata` export. No closing
+    `CTASection` — consistent with About/Services/Case Studies, which don't
+    use it either; only the home page does.
+  - One `tsc` fix along the way: `TIERS` is declared `as const` (so
+    `features` arrays are `readonly [...]` tuples), which didn't satisfy
+    `PricingCard`'s original `features: string[]` prop type. Widened that
+    prop to `features: readonly string[]` rather than dropping `as const`
+    from the data — keeping the tuple literal types is worth the minor
+    prop-type widening.
+  - No changes to `components/navbar.tsx` — it already linked to `/pricing`
+    since Session 3, so the route now resolves instead of 404ing. No other
+    files touched.
+- **Repo state:** `components/pricing-card.tsx`, `components/pricing-grid.tsx`,
+  `app/pricing/page.tsx` added. `node_modules` now present (was missing at
+  session start). No other files touched, no dependency changes.
+- **Next session starts at:** Session 11 below (Careers page).
 
 ---
 
@@ -616,4 +655,6 @@ Shared chrome: sticky glass navbar, mega-footer with sitemap/social/newsletter.
 (Sessions append one line here whenever the scope above tells them to "decide and
 log" something, so later sessions don't need to dig through commits to find out.)
 
-- _(none yet)_
+- Session 10 (Pricing Page): added a monthly/annual toggle. "Save 20%" is
+  shown on the annual option; each tier's annual price is a precomputed
+  ~20%-off number in the data rather than a live percentage calculation.
