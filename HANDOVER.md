@@ -400,13 +400,41 @@ Shared chrome: sticky glass navbar, mega-footer with sitemap/social/newsletter.
 
 ## Session 7 — About Page
 
-- **Status:** NOT STARTED
+- **Status:** DONE
 - **Scope:** Build `/about`: company story/mission copy block, `Timeline`
   component, `TeamGrid` (leadership grid). Build shared `PageHeader` component
   (reusable hero-style banner for all interior pages) and use it here.
 - **What changed:**
-- **Repo state:**
-- **Next session starts at:**
+  - Ran `npm install` (no-op) then `npm run build` — same known sandbox
+    font-fetch limitation as every prior session, nothing new. `tsc --noEmit`
+    and `eslint .` both clean.
+  - `components/page-header.tsx` — new **shared** `PageHeader` component:
+    eyebrow, title, optional description, centered, bottom border. Deliberately
+    lighter than the home page `Hero` — no `BubbleField`, no CTA buttons; this
+    is a page title, not a landing moment. **Sessions 8–14 (every remaining
+    page-building session) should use this instead of hand-rolling a page
+    title block.** Props: `eyebrow: string`, `title: string`,
+    `description?: string`.
+  - `components/timeline.tsx` — new `Timeline`. Vertical rail (border-left +
+    absolutely-positioned dot per entry), pure CSS, no animation library.
+    Placeholder company history (founded 2021 → global infra 2026) — swap for
+    real milestones before launch.
+  - `components/team-grid.tsx` — new `TeamGrid`. Uses `GlassCard` per person.
+    **No headshot images exist in this project**, so each card shows an
+    initials avatar in an accent-tinted circle instead of an `<Image>`
+    placeholder — swap for real photos later, no structural change needed.
+    Names/roles are placeholder.
+  - `app/about/page.tsx` — new route. Structure: `PageHeader` → mission copy
+    block (prose) → "Our story" heading + `Timeline` → "Leadership" heading +
+    `TeamGrid`. Has its own `metadata` export (title/description) — this is
+    the pattern later page sessions should follow rather than relying on the
+    root layout's generic metadata.
+- **Repo state:** `components/page-header.tsx`, `components/timeline.tsx`,
+  `components/team-grid.tsx`, `app/about/page.tsx` added. No dependency
+  changes. Home page (`app/page.tsx`) untouched — Session 6 finished it.
+- **Next session starts at:** Session 8 below (Services page). Use the new
+  `PageHeader` component — do not build another page-title block from
+  scratch.
 
 ---
 
