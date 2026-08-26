@@ -285,13 +285,40 @@ Shared chrome: sticky glass navbar, mega-footer with sitemap/social/newsletter.
 
 ## Session 4 — Hero Section
 
-- **Status:** NOT STARTED
+- **Status:** DONE
 - **Scope:** Build `Hero` component for `/` — headline, subheadline, CTA
   button(s), animated `BubbleField` background, glass badge/eyebrow. Assemble
   into `app/page.tsx` as the first section.
 - **What changed:**
-- **Repo state:**
-- **Next session starts at:**
+  - Ran `npm install` (no new deps this session, just restoring
+    `node_modules`) then `npm run build` — same known sandbox limitation as
+    Sessions 1–3 (no network route to `fonts.googleapis.com`), nothing new.
+    `tsc --noEmit` and `eslint .` both clean.
+  - `components/hero.tsx` — new `Hero` component. Server component (no
+    interactivity of its own — `BubbleField` is a client component but
+    composes fine as a child). Structure: glass eyebrow/badge (uses
+    `--glass-bg`/`--glass-border` directly, not via `GlassCard`, since it's a
+    small pill not a card), large headline, subheadline, two CTAs — one solid
+    accent button to `/contact`, one glass-outline button to `/services`.
+    `BubbleField` is absolutely positioned behind the content (`relative
+    isolate` on the section, `z-10` on the content wrapper) — this is the
+    reference pattern for any future section that wants a bubble backdrop.
+  - `app/page.tsx` — **replaced wholesale** per the Session 1/2/3 handoff
+    notes (not edited around). Now renders only `<Hero />` inside `<main>`.
+    The old "Scaffold ready" placeholder text and standalone `GlassCard` demo
+    from Session 2 are gone — Session 2's `GlassCard` component itself is
+    untouched and still used elsewhere (Navbar/Footer don't use it directly,
+    but it remains available for Session 5 onward).
+  - No changes to `lib/`, `components/glass-card.tsx`, `components/bubble-
+    field.tsx`, `components/navbar.tsx`, `components/footer.tsx`, or
+    `app/globals.css` — all consumed as-is from prior sessions, nothing about
+    the design system needed to change for the Hero.
+- **Repo state:** `components/hero.tsx` added. `app/page.tsx` replaced.
+  No dependency changes — `package.json`/`package-lock.json` untouched this
+  session.
+- **Next session starts at:** Session 5 below. `npm install` is a no-op this
+  time (no new deps were added in Session 4) but run it anyway for
+  consistency before writing code.
 
 ---
 
