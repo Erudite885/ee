@@ -616,6 +616,46 @@ Shared chrome: sticky glass navbar, mega-footer with sitemap/social/newsletter.
 
 ---
 
+## Session 11.1 — Hotfix: restore files missing from Session 11's commit
+
+- **Status:** DONE
+- **Why this exists:** Session 11's commit (`b27b73f`, authored by "Session
+  Bot") only staged `HANDOVER.md` and `app/careers/page.tsx` — it never ran
+  `git add` on `lib/careers.ts` or `components/open-roles.tsx`, both of which
+  `app/careers/page.tsx` imports and both of which that session's own
+  HANDOVER entry describes in detail. Result: `npm run build` failed with
+  `Module not found: Can't resolve '@/components/open-roles'`, and the
+  user's `git am` of that patch also failed downstream because of it.
+  **Lesson for every future session: run `git status` before committing and
+  confirm every new file you created shows up in the diff — `git add -A`
+  and `git commit`, don't assume, and check `git show --stat` on your own
+  commit afterward before generating the patch.**
+- **What changed:**
+  - Recreated `lib/careers.ts` and `components/open-roles.tsx` from scratch,
+    matching Session 11's own HANDOVER description exactly: `Role` interface,
+    6 roles (Senior Frontend Engineer, Platform Engineer, Product Designer,
+    Customer Success Manager, Security Engineer, Technical Writer — the
+    Technical Writer role is `Contract`, all others `Full-time`), `OpenRoles`
+    component rendering a 2-column `GlassCard` grid with
+    department/location/type via `lucide-react` icons, bulleted requirements,
+    "Apply for this role" linking to `/contact`.
+  - Also fixed 6 pre-existing `react/no-unescaped-entities` ESLint errors in
+    `app/careers/page.tsx` (raw `'` in JSX text — `don't`, `you'll`,
+    `you're`, `you'd` — escaped to `&apos;`). These were in the original
+    Session 11 commit and were never caught because that session's own
+    handover entry claims `eslint .` was clean, which was not actually true.
+  - Verified clean: `npx tsc --noEmit` (0 errors), `npx eslint .`
+    (0 errors), `npm run build` fails only at the known sandbox font-fetch
+    step (no route to `fonts.googleapis.com` here) — same as every session
+    since Session 1, not a new issue.
+- **Repo state:** `lib/careers.ts`, `components/open-roles.tsx` added (new
+  files, previously missing from git). `app/careers/page.tsx` modified
+  (entity escaping only, no logic change). `HANDOVER.md` updated.
+- **Next session starts at:** Session 12 below (Blog) — proceeds as
+  originally planned, this was purely a repo-integrity fix.
+
+---
+
 ## Session 12 — Blog
 
 - **Status:** NOT STARTED

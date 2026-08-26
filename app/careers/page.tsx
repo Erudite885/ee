@@ -23,10 +23,10 @@ export default function CareersPage() {
           How we work
         </h2>
         <p className="mt-4 text-muted">
-          We don't do ping-pong tables or mandatory fun. We do trust, autonomy,
-          and a shared obsession with making things that work. Every decision
-          traces back to one question: does this help our customers ship better
-          software, faster?
+          We don&apos;t do ping-pong tables or mandatory fun. We do trust,
+          autonomy, and a shared obsession with making things that work. Every
+          decision traces back to one question: does this help our customers
+          ship better software, faster?
         </p>
 
         <div className="mt-10 grid gap-8 sm:grid-cols-2">
@@ -47,8 +47,8 @@ export default function CareersPage() {
           <div>
             <h3 className="text-base font-medium">Own the outcome</h3>
             <p className="mt-2 text-sm text-muted">
-              Small teams, clear ownership. You'll know exactly what you're
-              responsible for and have the authority to ship it.
+              Small teams, clear ownership. You&apos;ll know exactly what
+              you&apos;re responsible for and have the authority to ship it.
             </p>
           </div>
           <div>
@@ -72,7 +72,8 @@ export default function CareersPage() {
             Current openings
           </h2>
           <p className="mt-4 text-muted">
-            Don't see a perfect fit? We're always open to exceptional people.
+            Don&apos;t see a perfect fit? We&apos;re always open to exceptional
+            people.
             {" "}
             <a
               href="/contact"
@@ -81,7 +82,7 @@ export default function CareersPage() {
               Get in touch
             </a>
             {" "}
-            and tell us what you'd build here.
+            and tell us what you&apos;d build here.
           </p>
         </div>
         <OpenRoles />
