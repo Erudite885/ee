@@ -228,13 +228,58 @@ Shared chrome: sticky glass navbar, mega-footer with sitemap/social/newsletter.
 
 ## Session 3 — Shared Chrome (Navbar + Footer)
 
-- **Status:** NOT STARTED
+- **Status:** DONE
 - **Scope:** Build sticky glass `Navbar` (blurred, translucent, responsive/mobile
   menu) and mega-`Footer` (sitemap links, social links, newsletter mini-form UI
   only — no backend yet). Wire both into root `layout.tsx`.
 - **What changed:**
-- **Repo state:**
-- **Next session starts at:**
+  - Ran `npm install` + `npm run build` per Session 2's handoff. **Build still
+    fails in this sandbox** — identical cause as Sessions 1–2 (no network route
+    to `fonts.googleapis.com`). `tsc --noEmit` and `eslint .` both pass clean.
+    This is now a confirmed, recurring, sandbox-only limitation — **future
+    sessions do not need to re-flag this every time**; keep verifying with
+    `tsc`/`eslint` in-sandbox and trust the user to confirm real builds on
+    their machine when they apply patches. Only flag it again if a *build*
+    failure appears for a genuinely different reason.
+  - Installed `lucide-react` (v1.34.0). **Note for future sessions:** this
+    version of `lucide-react` has **removed all brand/logo icons**
+    (`Github`, `Linkedin`, `Twitter`, `Instagram`, `Facebook`, etc. do not
+    exist in the package). Only generic UI icons are available. `Footer`
+    below was written around this — don't re-attempt brand icon imports from
+    `lucide-react` in later sessions; either use a generic icon + accurate
+    label, or add a dedicated brand-icon package if real social branding
+    becomes a hard requirement (log that decision here if it happens).
+  - `components/navbar.tsx` — new sticky `Navbar`. Same glass tokens as
+    `GlassCard` (`--glass-bg`/`--glass-border`) applied directly rather than
+    wrapping `GlassCard` itself, since a full-bleed sticky bar has different
+    layout needs than a card. Desktop link row + "Contact us" CTA button,
+    hamburger/X toggle (via `lucide-react`) driving a simple show/hide mobile
+    panel below `md` breakpoint — no animation library used for the mobile
+    menu, kept intentionally simple/accessible (`aria-expanded`,
+    `aria-label`). Links point to the full sitemap from Project Reference
+    above; several of these routes don't exist yet (e.g. `/services`,
+    `/pricing`) and will 404 until their sessions build them — that's
+    expected at this stage.
+  - `components/footer.tsx` — new mega-`Footer`. Three sitemap columns
+    (Company / Product / Legal) matching the site map, a social-links row
+    (see lucide-react note above — labelled "Website" / "Community" / "Email"
+    with generic icons and placeholder `href`s; whichever session owns real
+    social presence should update both label and href together), and a
+    newsletter signup form. **The newsletter form is UI only** —
+    `onSubmit={(e) => e.preventDefault()}` is a placeholder; no session has
+    been assigned a newsletter backend in the current 15-session plan, so if
+    one is wanted later it needs a decision logged in the Decision Log below
+    and likely folds into whichever session is closest (Session 14, contact
+    backend, is the natural place if it happens).
+  - `app/layout.tsx` — `Navbar` and `Footer` imported and wired around
+    `{children}` inside `<body>`.
+  - No changes to `app/page.tsx` — the placeholder home page from Session 2
+    is untouched; Session 4 replaces it.
+- **Repo state:** `components/navbar.tsx`, `components/footer.tsx` added.
+  `app/layout.tsx` modified. `package.json` / `package-lock.json` updated
+  (added `lucide-react`). `node_modules/` still git-ignored, not in the patch.
+- **Next session starts at:** Session 4 below. Run `npm install` first
+  (new `lucide-react` dependency).
 
 ---
 
