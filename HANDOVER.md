@@ -363,13 +363,38 @@ Shared chrome: sticky glass navbar, mega-footer with sitemap/social/newsletter.
 
 ## Session 6 — Home Page: Testimonials + CTA Banner
 
-- **Status:** NOT STARTED
+- **Status:** DONE
 - **Scope:** Build `TestimonialCard`/testimonial section (glass cards) and
   `CTASection` banner. Complete `app/page.tsx` — home page is now fully
   assembled end to end.
 - **What changed:**
-- **Repo state:**
-- **Next session starts at:**
+  - Ran `npm install` (no-op) then `npm run build` — same known sandbox
+    font-fetch limitation as every prior session, nothing new. `tsc --noEmit`
+    and `eslint .` both clean.
+  - `components/testimonials.tsx` — new `Testimonials` section. Three
+    `GlassCard`s, each with a quote icon, quote text, and name/role. Two of
+    the three names are paired with company names from Session 5's
+    `LogoStrip` placeholder list (Northwind, Globex) for narrative
+    consistency — the third (Vertex Labs) also matches. All content is
+    **placeholder** — swap for real customer quotes before launch.
+  - `components/cta-section.tsx` — new `CTASection` closing banner. Reuses
+    `BubbleField` the same way `Hero` (Session 4) does: `relative isolate`
+    wrapper, `BubbleField` absolutely positioned behind, content at `z-10`.
+    Rendered as its own glass-bordered rounded band (not a `GlassCard`) so it
+    can span full width inside the max-width container — same treatment as
+    `StatsBand` from Session 5. Single CTA button to `/contact`.
+  - `app/page.tsx` — extended (not replaced) with `Testimonials` then
+    `CTASection` as the final two sections. **Home page is now fully
+    assembled end to end**: Hero → LogoStrip → FeatureGrid → StatsBand →
+    Testimonials → CTASection. No further sessions are scoped to touch this
+    file's section order — Sessions 7+ build separate interior pages.
+- **Repo state:** `components/testimonials.tsx`, `components/cta-section.tsx`
+  added. `app/page.tsx` modified (extended, now complete). No dependency
+  changes.
+- **Next session starts at:** Session 7 below (About page). This is the first
+  interior page — it introduces the shared `PageHeader` component that
+  Sessions 8+ will also depend on, so Session 7 should treat `PageHeader` as
+  a reusable primitive from the start, not something specific to `/about`.
 
 ---
 
