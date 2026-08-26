@@ -440,12 +440,38 @@ Shared chrome: sticky glass navbar, mega-footer with sitemap/social/newsletter.
 
 ## Session 8 — Services Page
 
-- **Status:** NOT STARTED
+- **Status:** DONE
 - **Scope:** Build `/services`: one `GlassCard`-based entry per offering, using
   `PageHeader` from Session 7. Placeholder/realistic copy for a software company.
 - **What changed:**
-- **Repo state:**
-- **Next session starts at:**
+  - Ran `npm install` (no-op) then `npm run build` — same known sandbox
+    font-fetch limitation as every prior session (no network route to
+    `fonts.googleapis.com` for Inter/JetBrains Mono in this sandbox), nothing
+    new introduced. Verified instead with `npx tsc --noEmit` and
+    `npx eslint .` — both clean.
+  - `components/services-grid.tsx` — new `ServicesGrid`. Six offerings
+    (Product Engineering, Platform & DevOps, Cloud Migration, Security &
+    Compliance, Data & Analytics, Managed Support), each a `GlassCard` with
+    an icon, description, and a bulleted "includes" list pinned to the
+    bottom of the card (`mt-auto` + top border) so cards with shorter
+    descriptions still align. Deliberately its own component rather than
+    reusing `FeatureGrid` (Session 5) — the bullet list makes these cards
+    heavier, and `FeatureGrid` is the home-page pattern, this is the
+    interior-page pattern. Realistic (non-lorem-ipsum) copy for a software
+    company — swap for the client's actual service lines before launch.
+  - `app/services/page.tsx` — new route. `PageHeader` (per Session 7's
+    directive to reuse it, not hand-roll another title block) → `ServicesGrid`
+    inside a standard `max-w-6xl` container. Own `metadata` export, same
+    pattern as `app/about/page.tsx`.
+  - No changes to `components/navbar.tsx` or `components/footer.tsx` — both
+    already linked to `/services` since Session 3, so the route now resolves
+    instead of 404ing. No dependency changes.
+- **Repo state:** `components/services-grid.tsx`, `app/services/page.tsx`
+  added. No other files touched.
+- **Next session starts at:** Session 9 below (Case Studies). It needs a
+  `CaseStudyCard` component and a static data source (local JSON/TS array) —
+  follow the same "own component, own route, own metadata" pattern used here
+  and in Session 7, and use `PageHeader` for the index page's title block.
 
 ---
 
