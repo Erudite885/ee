@@ -658,13 +658,63 @@ Shared chrome: sticky glass navbar, mega-footer with sitemap/social/newsletter.
 
 ## Session 12 — Blog
 
-- **Status:** NOT STARTED
+- **Status:** DONE
 - **Scope:** Build `/blog` index and `/blog/[slug]` via MDX. `BlogCard`
   component, reading-time and date-formatting utilities. Decide and log below:
   local MDX files vs headless CMS (default: local MDX unless logged otherwise).
+- **Decision:** Local MDX files (default was taken — no headless CMS added).
+  Posts live as `.mdx` files in `content/blog/`, filename = slug.
 - **What changed:**
-- **Repo state:**
-- **Next session starts at:**
+  - New deps: `next-mdx-remote@6` (RSC-compatible render via
+    `next-mdx-remote/rsc`), `gray-matter` (frontmatter parsing),
+    `reading-time` (reading-time estimate), `@tailwindcss/typography` (dev
+    dep, for the `prose` classes on rendered post body — registered in
+    `app/globals.css` via `@plugin "@tailwindcss/typography";` under the
+    existing `@import "tailwindcss";`, Tailwind v4's CSS-based plugin syntax,
+    not a `tailwind.config.js` entry).
+  - `content/blog/*.mdx` — three real posts (not lorem ipsum), each with
+    frontmatter (`title`, `excerpt`, `date`, `author`, `tags`): a migrations
+    post, a SOC 2 post, and a checkout-rewrite post — all three deliberately
+    echo the Session 9 case studies (Northwind checkout, Globex migration,
+    Vertex Labs SOC 2) so blog + case studies tell the same story from two
+    angles rather than inventing a fourth, disconnected narrative.
+  - `lib/blog.ts` — new. `getAllPosts()` (metadata only, sorted newest-first),
+    `getPost(slug)` (metadata + raw MDX content), `getAllSlugs()` (for
+    `generateStaticParams`), `formatPostDate()`. Reads `content/blog/`
+    directly via `fs`/`path` — safe because this module is only ever
+    imported from Server Components, never from a Client Component.
+  - `components/blog-card.tsx` — new `BlogCard`. Same stretched-link pattern
+    as `CaseStudyCard` (Session 9): an absolutely-positioned `<Link>` makes
+    the whole `GlassCard` clickable rather than just an inline "read more."
+  - `app/blog/page.tsx` — new index route, `PageHeader` → grid of
+    `BlogCard`s, same container pattern as Sessions 8/9.
+  - `app/blog/[slug]/page.tsx` — new dynamic detail route.
+    `generateStaticParams` from `getAllSlugs()` (SSG for all posts),
+    `generateMetadata` per-slug, `notFound()` for unknown slugs. Renders MDX
+    body via `<MDXRemote source={post.content} />` wrapped in Tailwind
+    Typography's `.prose` classes (`prose-invert` in dark mode via the
+    `dark:` variant, since this project's dark mode — like the rest of the
+    site — is `prefers-color-scheme`-driven, not a class toggle).
+  - Adding the `[slug]` route required `npx next typegen` again before
+    `tsc --noEmit` recognized `PageProps<"/blog/[slug]">` — same note as
+    Session 9's entry: **any new dynamic route segment needs a typegen run**,
+    it doesn't happen automatically outside of `next dev`/`next build`.
+  - Verified clean: `npx tsc --noEmit` (0 errors), `npx eslint .`
+    (0 errors — one unused-var warning from an intentional
+    destructure-to-omit was explicitly `eslint-disable-line`d rather than
+    left as noise), `npm run build` stops only at the known sandbox
+    font-fetch step, nothing new.
+- **Repo state:** `content/blog/` (3 `.mdx` files), `lib/blog.ts`,
+  `components/blog-card.tsx`, `app/blog/page.tsx`, `app/blog/[slug]/page.tsx`
+  added. `app/globals.css` modified (added the typography plugin line only).
+  `package.json`/`package-lock.json` updated with the 4 new deps listed
+  above. No other files touched.
+- **Next session starts at:** Session 13 below (Contact Page, UI only).
+  Follow the same pattern: `PageHeader` for the title block, own component
+  file (`ContactForm`) for the form itself. **Before committing, run
+  `git status` and confirm every new file is staged** — Session 11 shipped a
+  commit missing two files it created, which broke the build until Session
+  11.1 fixed it. Don't repeat that.
 
 ---
 

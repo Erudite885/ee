@@ -1,0 +1,37 @@
+---
+title: "Zero-downtime migrations: what actually breaks"
+excerpt: "The failure modes that don't show up in a staging environment, and the checklist we run before every production cutover."
+date: "2026-06-02"
+author: "Platform Engineering Team"
+tags: ["Engineering", "Cloud Migration"]
+---
+
+Most migration postmortems blame the wrong thing. It's rarely the database
+copy itself — it's the assumptions baked into everything *around* it: cache
+invalidation, background jobs still pointed at the old host, and clients that
+cached a DNS answer longer than anyone remembered configuring.
+
+## The checklist that actually matters
+
+Before any cutover, we walk through the same four questions on every
+engagement, regardless of stack:
+
+1. **What still points at the old system by IP instead of hostname?**
+   Load balancers, health checks, and cron jobs are the usual offenders.
+2. **What has a TTL longer than your maintenance window?**
+   DNS, CDN edge caches, and mobile app configs cached at install time.
+3. **What's idempotent, and what isn't?**
+   Replays during a rollback are inevitable — anything that isn't safe to
+   run twice needs a guard before cutover day, not during it.
+4. **Who gets paged if this goes sideways at 2am, and do they have the
+   rollback runbook already open in a tab?**
+
+None of this is exotic. It's just the difference between a migration that's
+a non-event and one that becomes a war-room story.
+
+## Shifting traffic in increments
+
+The single highest-leverage change we make on every migration is refusing to
+cut over all at once. Route 5% of traffic, watch error rate and latency for
+fifteen minutes, then 25%, then 50%. If something's wrong, you find it while
+it's still cheap to reverse.

@@ -1,0 +1,38 @@
+---
+title: "SOC 2 readiness is a systems problem, not a paperwork problem"
+excerpt: "Why the audit is the easy part, and the actual work happens months earlier in how access and logging are designed."
+date: "2026-04-18"
+author: "Security Team"
+tags: ["Security", "Compliance"]
+---
+
+Teams usually start SOC 2 prep by looking for a template — a policy document
+they can fill in and hand to an auditor. That gets you through a checklist,
+not an audit. Auditors aren't grading your prose; they're sampling your
+systems to see whether the policy is actually true.
+
+## Start with access, not documents
+
+The fastest way to fail an audit is to have a well-written access control
+policy that doesn't match who can actually reach production. Before writing
+anything down, we always answer:
+
+- Who has standing access to production data, and why do they still have it?
+- Is access granted through a system that logs the grant, or through a
+  Slack message and a shared password?
+- When someone leaves, is their access revoked automatically, or does it
+  depend on someone remembering?
+
+If the honest answers are uncomfortable, that's useful information — it's
+also exactly what an auditor will find anyway, just later and more publicly.
+
+## Logging you'll actually use
+
+Compliance logging often gets built to satisfy an audit checkbox and then
+never looked at again. The logging worth building is the kind your own team
+would use to debug an incident at 3am — audit trail and operational value
+should be the same system, not two separate ones.
+
+Once access is scoped correctly and logging reflects reality, the actual
+audit becomes a formality: you're just showing an auditor systems that were
+already built to be true.

@@ -1,0 +1,39 @@
+---
+title: "The checkout rewrite nobody noticed"
+excerpt: "How we replaced a decade-old checkout monolith behind a feature flag, and why the best rewrite is the one your users never feel."
+date: "2026-02-11"
+author: "Product Engineering Team"
+tags: ["Engineering", "Case Study"]
+---
+
+The best compliment a rewrite can get is silence. No support tickets, no
+spike in cart abandonment, no "did something change?" tweets. That's the bar
+we hold ourselves to on any rewrite of a system that's actively making money
+for a client — and it's achievable, but only if you resist the urge to ship
+the whole thing at once.
+
+## Map production before you write a line of new code
+
+Every checkout system accumulates edge cases that never made it into any
+spec: the currency-rounding rule added for one country, the retry logic for
+a payment provider that used to time out. We start every rewrite by mining
+production logs for every distinct path real traffic actually takes, not the
+happy path in the original design doc.
+
+## Build the new path next to the old one
+
+Rather than replacing the old checkout outright, the new implementation runs
+alongside it behind a feature flag, routed by a small, reversible percentage
+of traffic. This means:
+
+- A bug in the new path affects a bounded slice of orders, not all of them
+- Comparing conversion and error rates side by side is trivial
+- Rolling back is a flag flip, not a deploy
+
+## Widen the rollout only when the data says to
+
+We don't advance the rollout percentage on a schedule — we advance it when
+the metrics that matter (checkout completion rate, payment error rate,
+p95 latency) hold steady at the current percentage for a full business cycle,
+including the highest-traffic day of the week. Slower than a big-bang launch,
+and it's why nobody noticed.
