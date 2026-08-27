@@ -37,16 +37,25 @@ const FIELDS: {
 ];
 
 /**
- * Contact form UI. Session 13 scope is UI-only — onSubmit is stubbed with a
- * timeout that simulates a network call. Session 14 swaps the stub for a
- * real fetch("/api/contact", ...) call; the form state machine (idle →
- * submitting → success/error) is already fully built so that swap is a
- * one-function change, not a rewrite.
+ * Contact form UI. Submits to /api/contact (Session 14), which re-validates
+ * server-side with the same `contactFormSchema` and applies the honeypot +
+ * minimum-submit-delay checks. `startedAt` captures the mount time and rides
+ * along in the request body (not part of `ContactFormValues` — it's
+ * anti-spam metadata, not form content, so it stays out of the shared
+ * client/server validation schema and gets composed in on the API route).
+ * Captured via a lazy `useState(() => Date.now())` initializer rather than
+ * a ref or an effect: a ref read inside the `handleSubmit` callback trips
+ * the strict `react-hooks/refs` rule (it can't prove the ref is only read
+ * inside the submit event, not during render), and assigning it via
+ * `useEffect` trips `react-hooks/set-state-in-effect`. A lazy `useState`
+ * initializer runs exactly once, satisfies both rules, and is the
+ * React-documented way to compute expensive/impure initial state.
  */
 export function ContactForm() {
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">(
     "idle"
   );
+  const [startedAt] = useState(() => Date.now());
 
   const {
     register,
@@ -66,16 +75,18 @@ export function ContactForm() {
   });
 
   async function onSubmit(values: ContactFormValues) {
-    if (values.website) {
-      // Honeypot tripped — pretend to succeed, do nothing else.
-      setStatus("success");
-      return;
-    }
-
     setStatus("submitting");
     try {
-      // TODO(Session 14): replace with fetch("/api/contact", { method: "POST", body: JSON.stringify(values) })
-      await new Promise((resolve) => setTimeout(resolve, 900));
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...values, startedAt }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Request failed");
+      }
+
       setStatus("success");
       reset();
     } catch {

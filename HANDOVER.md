@@ -774,7 +774,7 @@ Shared chrome: sticky glass navbar, mega-footer with sitemap/social/newsletter.
 
 ## Session 14 — Contact Backend + Legal/Error Pages
 
-- **Status:** NOT STARTED
+- **Status:** DONE
 - **Scope:** Build `/api/contact` route handler (server-side Zod validation,
   rate-limit/spam protection via honeypot + minimum submit delay, integration
   with chosen email provider — SMTP - send to contact@edgesenterprise.com).
@@ -782,8 +782,67 @@ Shared chrome: sticky glass navbar, mega-footer with sitemap/social/newsletter.
   state. Build `/legal/privacy`, `/legal/terms`, custom `not-found.tsx` and
   `error.tsx` (on-brand, reusing `GlassCard`/`PageHeader`).
 - **What changed:**
-- **Repo state:**
-- **Next session starts at:**
+  - New deps: `nodemailer@7`, `@types/nodemailer` (dev).
+  - `app/api/contact/route.ts` — new POST route handler. Imports
+    `contactFormSchema` from `lib/validation.ts` **unmodified** (per Session
+    13's directive) and extends it inline with a `startedAt: z.number()`
+    field for the minimum-submit-delay check — that field is composed here,
+    not added to the shared schema, since it's anti-spam metadata rather
+    than form content. Spam handling: (1) in-memory per-IP rate limit,
+    5 requests/60s sliding window — **explicitly documented in-code as
+    non-durable**, it resets on cold start and doesn't share state across
+    instances, swap for Redis/Upstash before scaling past one instance;
+    (2) honeypot (`website` field, already in the schema since Session 13);
+    (3) minimum 3-second submit delay. Both (2) and (3) return a fake
+    `{ ok: true }` success rather than an error — never tell a bot it was
+    caught. Real submissions send via `nodemailer` SMTP transport, credentials
+    from env vars, to `CONTACT_TO_EMAIL` (defaults to
+    `contact@edgesenterprise.com` per this session's own scope note above).
+  - `.env.example` — new. Documents `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`,
+    `SMTP_USER`, `SMTP_PASSWORD`, optional `SMTP_FROM`/`CONTACT_TO_EMAIL`.
+    **Nothing in this repo can actually send a test email from this sandbox**
+    — no SMTP credentials exist here and the sandbox's network egress is
+    allowlisted to package registries only, not arbitrary SMTP hosts. The
+    route handler is correct and ready; verify actual delivery from a real
+    environment with real credentials before considering this "done" in
+    production, not just "builds without error."
+  - `.gitignore` — added `!.env.example` exception. The existing `.env*`
+    ignore pattern was swallowing `.env.example` too, which defeats its
+    purpose as committed documentation — only real `.env.local` etc. should
+    ever be excluded.
+  - `components/contact-form.tsx` — replaced the Session 13 stub with a real
+    `fetch("/api/contact", ...)` call. Added a `startedAt` timestamp,
+    captured via `useState(() => Date.now())` — **not** a `useRef` or a
+    `useEffect` assignment, because `eslint-config-next 16`'s stricter React
+    Compiler-linked rules flag both: a ref read inside the `handleSubmit`
+    callback trips `react-hooks/refs` (can't statically prove it only runs
+    in the submit event, not render), and `setState` inside a bare
+    `useEffect` trips `react-hooks/set-state-in-effect`. A lazy `useState`
+    initializer runs exactly once and satisfies both — **note this for any
+    future session using timestamps/`Date.now()` in a component**, the
+    naive ref/effect patterns that used to be idiomatic now fail
+    `eslint .` here.
+  - `app/not-found.tsx` — new, root 404, `GlassCard` + link home.
+  - `app/error.tsx` — new, root error boundary. Must be a Client Component
+    (Next.js App Router requirement, not a style choice) — logs to console
+    via `useEffect`, "Try again" (calls `reset()`) and "Email us" actions.
+  - `app/legal/privacy/page.tsx`, `app/legal/terms/page.tsx` — new. Both use
+    `PageHeader` + the same `.prose` typography classes introduced in
+    Session 12 for blog posts. Footer already linked both since Session 3.
+  - Verified clean: `npx tsc --noEmit` (0 errors), `npx eslint .`
+    (0 errors — fixed 3 unescaped-entity errors in the terms page and the
+    ref/effect purity issues above along the way), `npm run build` stops
+    only at the known sandbox font-fetch step, nothing new.
+- **Repo state:** `.env.example`, `app/api/contact/route.ts`,
+  `app/not-found.tsx`, `app/error.tsx`, `app/legal/privacy/page.tsx`,
+  `app/legal/terms/page.tsx` added. `components/contact-form.tsx`,
+  `.gitignore`, `package.json`/`package-lock.json` modified. Confirmed via
+  `git status` before commit — every new file staged.
+- **Next session starts at:** Session 15 below (Polish & QA) — the final
+  session. Before marking it done, actually exercise `/contact` with real
+  SMTP credentials in a non-sandbox environment at least once; this session
+  could only verify the code compiles and the logic is sound, not that mail
+  delivery works end to end.
 
 ---
 
