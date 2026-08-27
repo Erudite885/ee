@@ -1195,7 +1195,7 @@ present (check `package.json` first — do not double-install).
 
 ## Session 19 — Navbar Contact Pulse + Glassmorphic Footer
 
-- **Status:** NOT STARTED
+- **Status:** DONE
 - **Scope:**
   - `components/navbar.tsx`: the "Contact us" button gets a subtle ambient
     pulse (a soft, slow glow/scale breathing effect — understated, meant to
@@ -1210,8 +1210,62 @@ present (check `package.json` first — do not double-install).
     across the full footer width, consistent with the navbar's glass
     treatment from Session 3.
 - **What changed:**
-- **Repo state:**
-- **Next session starts at:**
+  - **Footer finding, worth flagging explicitly:** the scope description
+    above ("current flat bordered-top treatment") doesn't match what's
+    actually in the repo — `components/footer.tsx` has used
+    `bg-[var(--glass-bg)]` / `border-[var(--glass-border)]` /
+    `backdrop-blur-xl` since **Session 3**, and already reads as one
+    continuous glass surface consistent with the navbar. This looks like
+    the Phase 2 plan (written before Sessions 3–15 were executed, or
+    written speculatively) assumed an earlier/plainer footer than what
+    actually got built. **No functional footer change was needed** — see
+    below for the one token-consistency tweak made instead. Flagging this
+    so nobody re-does this work later thinking it's still outstanding.
+  - `app/globals.css` — added `.contact-pulse` + `@keyframes contact-pulse`:
+    a soft breathing box-shadow ring (0 → 9px, `color-mix(in oklab,
+    var(--accent) 45%, transparent)` → transparent) combined with a subtle
+    `scale(1) → scale(1.015)`, 3.2s ease-in-out infinite. CSS-native, same
+    precedent Session 16 set for ambient effects (`.flare-text`,
+    `.marquee-track`) that don't need Framer Motion's orchestration.
+    Explicit `prefers-reduced-motion` override sets `animation: none`
+    (the pre-existing global `*` reduced-motion rule from Session 1/2
+    already neuters it via near-zero animation-duration, but an explicit
+    `none` is clearer intent, matching Session 16's own reasoning for doing
+    the same on its custom animations).
+  - `components/navbar.tsx` — desktop "Contact us" button: added
+    `contact-pulse` class; hover treatment changed from `hover:opacity-90`
+    (fades the *entire* button, text included) to `border border-transparent
+    ... hover:border-accent hover:bg-accent/15 hover:text-accent` — only the
+    background fades toward transparent, while the border and text switch to
+    the accent color so both stay clearly legible against the blurred navbar
+    behind it, exactly as scoped. **Mobile menu's "Contact us" link
+    deliberately left untouched** (plain solid button, no pulse, no
+    hover-fade) — touch devices have no hover state, and a pulsing button
+    inside an already-open dropdown panel would read as more distracting
+    than premium; noting the decision here rather than leaving it
+    unexplained.
+  - Token-consistency tweak (not scoped, but directly relevant to "using the
+    same tokens GlassCard already uses"): both `navbar.tsx` and
+    `footer.tsx` swapped their hardcoded `backdrop-blur-xl` Tailwind utility
+    for `[backdrop-filter:blur(var(--blur-glass))]` — an arbitrary-property
+    class that reads the actual `--blur-glass: 20px` design token from
+    `globals.css` (Session 2) instead of Tailwind's separate, unrelated
+    `xl` blur scale value. Used the arbitrary-property syntax rather than
+    hoping Tailwind auto-generates a `backdrop-blur-glass` utility from the
+    `@theme inline` block, since that mapping wasn't confirmed — this way
+    compiles unambiguously either way.
+  - Verified clean: `npx tsc --noEmit` — **0 errors across the whole
+    project**, including the four `app/blog/[slug]/page.tsx` errors flagged
+    in Sessions 17/18 — those are gone now (resolved somewhere between
+    Session 18 and this session, not by anything done here; noting it so
+    nobody goes looking for a fix that's no longer needed). `npx eslint .` —
+    0 errors. `npm run build` — stops at the same known sandbox font-fetch
+    step, nothing new, and got there cleanly (confirms the new
+    `[backdrop-filter:...]` arbitrary-property classes compiled through
+    Tailwind without issue).
+- **Repo state:** `components/navbar.tsx`, `components/footer.tsx`,
+  `app/globals.css` modified. No dependency changes.
+- **Next session starts at:** Session 20 below (Services Page Full Revamp).
 
 ---
 

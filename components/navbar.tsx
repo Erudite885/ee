@@ -20,6 +20,13 @@ const NAV_LINKS = [
  * full-width sticky bar has different layout needs than a card. Mobile menu
  * is a simple show/hide panel — no animation library dependency needed for
  * this, keeps it lightweight and accessible.
+ *
+ * Session 19: the "Contact us" button now has an ambient pulse (see the
+ * `.contact-pulse` keyframes in app/globals.css — CSS-native, following the
+ * same precedent Session 16 set for ambient effects that don't need Framer
+ * Motion's orchestration) and fades toward transparent on hover instead of
+ * the old opacity-90 fade, with its border and text switching to accent so
+ * it stays legible against the blurred navbar behind it.
  */
 export function Navbar() {
   const [open, setOpen] = useState(false);
@@ -27,7 +34,7 @@ export function Navbar() {
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 border-b backdrop-blur-xl",
+        "sticky top-0 z-50 border-b [backdrop-filter:blur(var(--blur-glass))]",
         "bg-[var(--glass-bg)] border-[var(--glass-border)]"
       )}
     >
@@ -52,7 +59,7 @@ export function Navbar() {
 
         <Link
           href="/contact"
-          className="hidden rounded-full bg-accent px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90 md:inline-block"
+          className="contact-pulse hidden rounded-full border border-transparent bg-accent px-4 py-2 text-sm font-medium text-white transition-colors duration-300 hover:border-accent hover:bg-accent/15 hover:text-accent md:inline-block"
         >
           Contact us
         </Link>

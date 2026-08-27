@@ -230,3 +230,29 @@ body {
     animation: none;
   }
 }
+
+/* Session 19: ambient pulse on the navbar "Contact us" button — a soft,
+   slow breathing glow + scale, understated (meant to be noticed
+   peripherally, not blinking). CSS-native, same precedent as
+   .flare-text/.marquee-track above. */
+.contact-pulse {
+  animation: contact-pulse 3.2s ease-in-out infinite;
+}
+
+@keyframes contact-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--accent) 45%, transparent);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 0 9px color-mix(in oklab, var(--accent) 0%, transparent);
+    transform: scale(1.015);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .contact-pulse {
+    animation: none;
+  }
+}

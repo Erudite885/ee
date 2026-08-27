@@ -41,12 +41,19 @@ const SOCIAL_LINKS = [
  * The newsletter form is UI only for this session — no submit handler wired
  * up yet. Whichever session ends up owning a real newsletter backend should
  * wire onSubmit here rather than building a second form component.
+ *
+ * Session 19: was already using --glass-bg/--glass-border + a blur filter
+ * (built correctly back in Session 3) — confirmed it already reads as one
+ * continuous glass surface consistent with the navbar. Only change here is
+ * swapping the hardcoded `backdrop-blur-xl` utility for the same
+ * `--blur-glass` design token the navbar now explicitly references, so
+ * both pieces of chrome stay in lockstep if that token's value ever changes.
  */
 export function Footer() {
   return (
     <footer
       className={cn(
-        "mt-auto border-t backdrop-blur-xl",
+        "mt-auto border-t [backdrop-filter:blur(var(--blur-glass))]",
         "bg-[var(--glass-bg)] border-[var(--glass-border)]"
       )}
     >
