@@ -23,7 +23,7 @@ interface UseCountUpOptions {
  * useReducedMotion() is true, rather than relying on this hook to detect
  * it (see components/stats-band.tsx for the pattern).
  */
-export function useCountUp(target: number, { start, duration = 1600, decimals = 0 }: UseCountUpOptions) {
+export function useCountUp(target: number, { start, duration = 2600, decimals = 0 }: UseCountUpOptions) {
   const [value, setValue] = useState(0);
   const hasRunRef = useRef(false);
 
@@ -36,7 +36,7 @@ export function useCountUp(target: number, { start, duration = 1600, decimals = 
 
     const tick = (now: number) => {
       const progress = Math.min((now - startTime) / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
+      const eased = 1 - Math.pow(1 - progress, 4);
       setValue(Number((target * eased).toFixed(decimals)));
       if (progress < 1) {
         raf = requestAnimationFrame(tick);
