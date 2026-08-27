@@ -1125,7 +1125,7 @@ present (check `package.json` first — do not double-install).
 
 ## Session 18 — Testimonials + Closing CTA Band, Premium Redesign
 
-- **Status:** NOT STARTED
+- **Status:** DONE
 - **Scope:**
   - Revamp `components/testimonials.tsx` ("Loved by teams who ship" section)
     — currently generic. Corporate-grade quote card treatment: larger/serif
@@ -1139,8 +1139,57 @@ present (check `package.json` first — do not double-install).
     surface), animated entrance on scroll, a button that feels like the
     single most important click on the page, not a default-styled link.
 - **What changed:**
-- **Repo state:**
-- **Next session starts at:**
+  - Confirmed the one manual commit sitting on top of Session 17
+    (tweaking `lib/use-count-up.ts`'s default duration 1600ms→2600ms and
+    easing cubic→quart) before starting — no conflict with this session's
+    scope, left as-is.
+  - `components/testimonials.tsx` — rewritten. Split the old combined
+    `role: "VP Engineering, Northwind"` string into separate `role` +
+    `company` fields for actual visual hierarchy (name bold, role muted,
+    company in accent color, all on one line but distinctly weighted).
+    Quote text now uses `font-serif italic` (Tailwind's default system serif
+    stack — no new font/dependency) at `text-lg` with an oversized, heavily
+    faded `Quote` icon (`text-accent/10`, size 72) positioned behind it in
+    the card's corner for depth. Avatar is an initials circle, same visual
+    language as `TeamGrid` (Session 7) for consistency across the site
+    rather than a new pattern. Cards now reveal with a staggered
+    `whileInView` (parent `container` variants with `staggerChildren: 0.15`,
+    child `item` variants fade+slide-up) instead of appearing all at once —
+    `viewport={{ once: true, amount: 0.3 }}` so it only fires once. Both
+    variants objects explicitly typed as `Variants` per the Session 16 `tsc`
+    gotcha. Under `useReducedMotion()`, every motion prop
+    (`initial`/`whileInView`/`variants`) is set to `undefined` on both the
+    container and each card — final state renders immediately, no
+    scroll-dependent behavior at all when reduced motion is on.
+  - `components/cta-section.tsx` — rewritten. Background is no longer flat
+    `--glass-bg` alone — layered a radial `color-mix(in oklab, var(--accent)
+    22%, transparent)` gradient underneath it (inline `style`, since
+    Tailwind's arbitrary-value gradient syntax doesn't cleanly support
+    `color-mix()` with a CSS custom property inside it) for a bolder,
+    glowing look. `BubbleField` still renders on top of that, same
+    absolute-behind-content pattern as before. The whole banner now
+    `whileInView`-reveals (fade + slide-up, `once: true`) instead of being
+    static. CTA button treatment bumped up: larger padding, a two-layer
+    `box-shadow` (a hairline accent ring + a soft accent glow) instead of a
+    plain hover-opacity fade, `hover:scale-[1.03]`, and the arrow icon
+    nudges right on hover via a `group`/`group-hover:translate-x-1` pair.
+    Reduced motion: same pattern as `Testimonials` — all motion props
+    `undefined` when `useReducedMotion()` is true, banner appears at final
+    state immediately. Note the CSS hover states (scale, shadow, arrow
+    nudge) are still covered by the pre-existing global reduced-motion rule
+    from Session 1/2 that collapses transition durations, so they don't need
+    their own explicit reduced-motion branch.
+  - Verified clean: `npx tsc --noEmit` — 0 errors in both files touched this
+    session (the four pre-existing `app/blog/[slug]/page.tsx` errors from
+    Session 12 remain, untouched, exactly as flagged in Session 17's entry).
+    `npx eslint .` — 0 errors. `npm run build` — stops at the same known
+    sandbox font-fetch step, nothing new.
+- **Repo state:** `components/testimonials.tsx`, `components/cta-section.tsx`
+  modified. No dependency changes — `framer-motion` already installed.
+- **Next session starts at:** Session 19 below (Navbar Contact Pulse +
+  Glassmorphic Footer). The pre-existing `app/blog/[slug]/page.tsx` type
+  errors are still outstanding — not this session's to fix either, still
+  flagged for whoever gets to Session 23.
 
 ---
 
