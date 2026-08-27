@@ -146,16 +146,34 @@ body {
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  animation: flare-sweep 5s ease-in-out 0.6s infinite;
+  animation: flare-sweep 15s ease-in-out 0.6s infinite;
 }
 
-@keyframes flare-sweep {
+/* @keyframes flare-sweep {
   0% {
     background-position: 200% center;
   }
   40%,
   100% {
     background-position: -50% center;
+  }
+} */
+
+@keyframes flare-sweep {
+  0% {
+    background-position: 200% center; /* hidden right */
+  }
+  20% {
+    background-position: 50% center;  /* moves to center */
+  }
+  60% {
+    background-position: 50% center;  /* PAUSES at center */
+  }
+  80% {
+    background-position: -50% center; /* sweeps left */
+  }
+  100% {
+    background-position: -50% center; /* stays left */
   }
 }
 
