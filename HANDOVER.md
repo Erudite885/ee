@@ -1326,7 +1326,7 @@ present (check `package.json` first — do not double-install).
 
 ## Session 21 — Pricing Page: New Scheme, Pro-Tier Card Treatment
 
-- **Status:** NOT STARTED
+- **Status:** DONE
 - **Scope:** Full redesign, not a polish pass — current pricing page reads
   as unfinished and doesn't make anyone want to pay.
   - **No bubbles, no ambient background animation, no cursor-flare glow
@@ -1349,10 +1349,74 @@ present (check `package.json` first — do not double-install).
     all cards get equal treatment — that's intentional here.
   - Keep (or rebuild) the monthly/annual toggle from Session 10 and the
     comparison table, restyled to match.
-- **Decide and log:** final tier names/prices/feature lists.
+- **Decide and log:** kept the Starter / Growth / Enterprise names — already
+  professional, no reason to rename. New monthly/annual figures (~20% off,
+  precomputed per tier, same pattern as Session 10): Starter $1,200 /
+  $960/mo, Growth $3,500 / $2,800/mo, Enterprise remains Custom. Feature
+  lists refreshed with clearer per-tier differentiation (dedicated
+  engagement lead and cloud/DevOps support moved to Growth-and-up; SOC 2 /
+  ISO readiness, custom SLAs, and dedicated data/analytics support stay
+  Enterprise-only) so the ladder reads as deliberate scope tiers, not a
+  placeholder.
 - **What changed:**
-- **Repo state:**
-- **Next session starts at:**
+  - **Comparison-table finding, worth flagging explicitly:** this session's
+    scope says to keep or rebuild "the comparison table," but no such
+    component or markup existed anywhere in the repo — `git log` and a
+    repo-wide search for "comparison" both come back empty, and Session
+    10's own entry (which built the pricing page) only ever mentions adding
+    the monthly/annual toggle, nothing about a table. Same situation as
+    Session 19's footer finding: the plan assumed something that was never
+    actually built. Built `PricingComparisonTable` fresh (see below) rather
+    than skip it, since "restyled to match" only makes sense once something
+    exists to restyle — flagging this so nobody goes looking for an earlier
+    table that was never there.
+  - `components/pricing-card.tsx` — split into two structurally different
+    render paths on `highlighted` instead of one shared style with a
+    modifier class. Highlighted: `GlassCard` wrapped in an outer
+    `lg:-my-6 lg:scale-[1.05]` div, `border-accent`, and a stronger accent
+    shadow (`shadow-[0_30px_80px_-20px_var(--accent)]`) than any other
+    GlassCard on the site; `flare` stays off (was already `false` for the
+    highlighted tier pre-redesign, kept as-is — the accent border/badge/
+    scale already draw the eye). Non-highlighted: no `GlassCard` at all —
+    a plain `bg-[var(--background)]` surface, hairline border, no
+    `backdrop-blur`, only a subtle `hover:border-accent/40` colour
+    transition (no scale/shadow pop), per the flat-vs-glass contrast this
+    session's scope calls for. Also moved the "Most popular" badge from
+    inside `GlassCard` to the outer wrapper — `GlassCard` is
+    `overflow-hidden`, which was clipping the badge's negative `-top-3`
+    offset in the pre-redesign version; noting the fix since it wasn't
+    scoped but falls directly out of restructuring this card.
+  - `components/pricing-grid.tsx` — new `TIERS` data (see Decide and log
+    above). Grid gained `items-center` so the scaled-up Growth card doesn't
+    stretch its flat neighbors to match its height, and `pt-3` above the
+    grid so the relocated badge has clearance instead of touching the
+    section boundary. Now also renders a "Compare plans in detail" heading
+    + `PricingComparisonTable` below the tier grid.
+  - `components/pricing-comparison-table.tsx` — new component. A plain
+    `<table>` in a flat bordered container: no backdrop-blur, no motion,
+    same "calm, not playful" restraint the scope calls for on the cards,
+    extended here since the rule reads as page-wide rather than
+    card-specific. Eight comparison rows spanning engineer count, review
+    cadence, incident-response tier, and four boolean capabilities
+    (dedicated engagement lead, cloud/DevOps support, SOC 2/ISO readiness,
+    custom SLAs, dedicated data/analytics support) — `Check`/`Minus` icons
+    for booleans, plain text for the tiered rows. The Growth column gets a
+    `bg-accent/5` tint (no blur, no scale) to echo the popped-out card
+    above without reintroducing glass or motion into this section.
+  - No bubbles, ambient background animation, or cursor-flare were present
+    on this page to begin with — `PageHeader` never renders `BubbleField`
+    (see its own comment), and the only `GlassCard` flare usage was already
+    disabled on the highlighted tier pre-redesign. Nothing to strip; noting
+    this so the "no bubbles/flare" requirement doesn't look silently
+    unaddressed.
+  - Verified clean: `npx tsc --noEmit` — 0 errors. `npx eslint .` — 0
+    errors. `npm run build` — same known sandbox font-fetch stopping point
+    as every prior session, nothing new before it.
+- **Repo state:** `components/pricing-card.tsx`, `components/pricing-grid.tsx`
+  modified; `components/pricing-comparison-table.tsx` added. No dependency
+  changes.
+- **Next session starts at:** Session 22 below (Careers Page → Job Board
+  Feed Redesign).
 
 ---
 

@@ -3,15 +3,27 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { PricingCard } from "@/components/pricing-card";
+import { PricingComparisonTable } from "@/components/pricing-comparison-table";
 
 type BillingPeriod = "monthly" | "annual";
 
+/**
+ * Session 21 decision (see Decision Log in HANDOVER.md): kept the
+ * Starter / Growth / Enterprise naming — it already read as professional
+ * and consistent with a services company, so the redesign is the numbers,
+ * the feature lists, and the card treatment, not the names. Prices bumped
+ * from the Session 10 placeholders to figures that read as a real
+ * mid-market engineering services company rather than a SaaS seat price
+ * (this is bodies/scope, not per-seat software). Annual prices remain
+ * precomputed per-tier (~20% off, rounded to a clean number) rather than
+ * derived from a shared percentage at render time.
+ */
 const TIERS = [
   {
     name: "Starter",
     tagline: "For small teams shipping their first product.",
-    monthlyPrice: 490,
-    annualPrice: 392, // ~20% off, billed annually
+    monthlyPrice: 1200,
+    annualPrice: 960,
     features: [
       "Up to 5 engineers",
       "Core product engineering",
@@ -26,8 +38,8 @@ const TIERS = [
   {
     name: "Growth",
     tagline: "For scaling teams that need a dedicated partner.",
-    monthlyPrice: 1490,
-    annualPrice: 1192,
+    monthlyPrice: 3500,
+    annualPrice: 2800,
     features: [
       "Up to 20 engineers",
       "Everything in Starter",
@@ -65,9 +77,13 @@ const TIERS = [
  * than in the page component so the page itself can stay a plain server
  * component; this is the only client boundary the pricing page needs.
  *
- * Annual prices are precomputed per-tier (not derived with a shared
- * percentage at render time) so each tier can round to a clean number
- * instead of showing awkward cents.
+ * Session 21: `items-center` added to the grid so the Growth card's
+ * `lg:scale-[1.05] lg:-my-6` (see PricingCard) pops out symmetrically
+ * against its two flat, unscaled neighbors instead of stretching them to
+ * match its height. `pt-3` added above the grid so the "Most popular"
+ * badge — now positioned in PricingCard's outer wrapper instead of inside
+ * the clipped GlassCard — has room to sit above the card without being cut
+ * off by the section boundary.
  */
 export function PricingGrid() {
   const [period, setPeriod] = useState<BillingPeriod>("monthly");
@@ -105,10 +121,19 @@ export function PricingGrid() {
         </div>
       </div>
 
-      <div className="mt-12 grid gap-6 lg:grid-cols-3">
+      <div className="mt-12 grid items-center gap-6 pt-3 lg:grid-cols-3">
         {TIERS.map((tier) => (
           <PricingCard key={tier.name} billingPeriod={period} {...tier} />
         ))}
+      </div>
+
+      <div className="mt-24">
+        <h2 className="text-center text-2xl font-semibold tracking-tight">
+          Compare plans in detail
+        </h2>
+        <div className="mt-8">
+          <PricingComparisonTable />
+        </div>
       </div>
     </div>
   );
