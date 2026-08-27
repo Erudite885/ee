@@ -6,9 +6,14 @@ import { useHoverFlare } from "@/lib/use-hover-flare";
 
 interface GlassCardProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
-  /** Disable the cursor-following flare + hover pop (e.g. inside a list where
+  /** Disable the cursor-following flare spotlight (e.g. inside a list where
    * it would be too busy, or on very small cards). Default: enabled. */
   flare?: boolean;
+  /** Disable the built-in CSS hover scale/shadow pop — set false when a
+   * parent is driving its own Framer Motion hover animation (e.g. a lift +
+   * border glow) and the two would otherwise fight each other. Independent
+   * of `flare`, which still controls the spotlight. Default: enabled. */
+  hoverScale?: boolean;
 }
 
 /**
@@ -17,10 +22,15 @@ interface GlassCardProps extends HTMLAttributes<HTMLDivElement> {
  * automatically with light/dark — never hardcode colors on top of this.
  *
  * Hover behavior (when flare=true, the default):
- *  - subtle scale-up pop
- *  - a soft glow ring
  *  - a radial-gradient spotlight that follows the cursor, via --x/--y set by
  *    useHoverFlare and consumed in globals.css (.glass-card::before)
+ *
+ * Hover behavior (when hoverScale=true, the default):
+ *  - subtle scale-up pop + soft glow ring, via CSS transition
+ *
+ * Set hoverScale={false} when a consumer wants to drive its own Framer
+ * Motion hover animation instead (see components/feature-grid.tsx for an
+ * example) — flare can still be left on independently.
  *
  * All of the above respects prefers-reduced-motion globally (see
  * app/globals.css) — no per-component opt-out needed.
@@ -28,6 +38,7 @@ interface GlassCardProps extends HTMLAttributes<HTMLDivElement> {
 export function GlassCard({
   children,
   flare = true,
+  hoverScale = true,
   className,
   ...props
 }: GlassCardProps) {
@@ -43,7 +54,7 @@ export function GlassCard({
         "bg-[var(--glass-bg)] border-[var(--glass-border)]",
         "shadow-[0_8px_30px_var(--glass-shadow)]",
         "backdrop-blur-xl",
-        flare &&
+        hoverScale &&
           "transition-transform duration-300 ease-out hover:scale-[1.02] hover:shadow-[0_12px_40px_var(--glass-shadow)]",
         className
       )}

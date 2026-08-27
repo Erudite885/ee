@@ -1035,7 +1035,7 @@ present (check `package.json` first — do not double-install).
 
 ## Session 17 — Capability/Feature Cards + Animated Stat Counters
 
-- **Status:** NOT STARTED
+- **Status:** DONE
 - **Scope:**
   - Redesign `components/feature-grid.tsx` (home page capability cards) —
     currently reads as blank/generic. Add real visual weight: icon treatment
@@ -1049,10 +1049,77 @@ present (check `package.json` first — do not double-install).
     counter hook, or install a tiny dedicated library like `react-countup` —
     decide and log below; prefer the hand-rolled hook unless it turns out
     genuinely awkward, to avoid an extra dependency for something this small).
-- **Decide and log:** hand-rolled counter hook vs. a counting library.
+- **Decide and log:** hand-rolled counter hook vs. a counting library. —
+  **Decision:** hand-rolled hook (`lib/use-count-up.ts`), not a library. A
+  `requestAnimationFrame` loop with an ease-out cubic is ~30 lines and covers
+  exactly what's needed; `react-countup` would be a whole dependency for
+  something this small, same reasoning Session 16 used for the flare-text
+  sweep going CSS-native instead of Framer Motion.
 - **What changed:**
-- **Repo state:**
-- **Next session starts at:**
+  - **Before writing code:** confirmed the six undocumented commits sitting
+    on top of Session 16 (`css`, `css1`, `css0`, `title removed`, `ignord`,
+    `spacing fix`, all authored directly by the user, not via a session
+    patch) only touched `app/globals.css`, `components/logo-strip.tsx`, and
+    `.gitignore` — no conflict with this session's scope. Left them as-is;
+    they aren't part of the numbered session log and don't need a
+    HANDOVER entry.
+  - `components/glass-card.tsx` — added a new `hoverScale?: boolean` prop
+    (default `true`), independent of the existing `flare` prop. When a
+    consumer wants to drive its own Framer Motion hover animation (like this
+    session's `FeatureGrid`), setting `hoverScale={false}` disables
+    `GlassCard`'s built-in CSS `hover:scale-[1.02]` so it doesn't fight the
+    Framer Motion lift, while `flare` (the cursor-spotlight) can be left on
+    independently. **Any future session adding its own hover animation on
+    top of `GlassCard` should use `hoverScale={false}`, not fork a new base
+    card component.**
+  - `components/feature-grid.tsx` — rewritten. Each card: numbered eyebrow
+    (`01`–`04`, font-mono), a larger accent-tinted icon badge in a
+    rounded-xl ring (up from a bare circle), title bumped to `text-xl
+    font-semibold`, description unchanged size for contrast. Hover: a
+    `motion.div` wrapper (`variants` typed explicitly as `Variants` per
+    Session 16's noted `tsc` gotcha) lifts the card `-6px` on
+    `whileHover`, while the `GlassCard` itself (`hoverScale={false}`, `flare`
+    left on) gets a CSS `hover:border-accent` + accent glow shadow
+    transition. Gated by `useReducedMotion()` — under reduced motion, both
+    `variants` and `whileHover` are `undefined`, so no lift happens (the
+    CSS border/shadow transition is already covered by the global
+    reduced-motion rule from Session 1/2, which collapses transition
+    duration to ~0).
+  - `lib/use-count-up.ts` — new `useCountUp(target, { start, duration,
+    decimals })` hook. RAF loop, ease-out cubic, gated by a `start` boolean
+    the caller controls, `hasRunRef` ensures it only ever animates once even
+    if `start` flips back to false. Caller is responsible for reduced-motion
+    handling (documented in the hook's own comment) — it does not check
+    `prefers-reduced-motion` itself.
+  - `components/stats-band.tsx` — rewritten. Added `parseStat()` — regex-
+    splits a display string like `"40M+"`, `"99.99%"`, or `"<50ms"` into a
+    non-numeric prefix, the numeric target (with correct decimal precision
+    inferred from the string), and a non-numeric suffix, so only the number
+    itself animates while `%`/`M+`/`<`/`ms` stay fixed. New `StatItem`
+    subcomponent calls `useCountUp`, gated by `useInView(containerRef, {
+    once: true, margin: "-100px" })` on the `<dl>` so all four counters start
+    together the first time the band scrolls into view — never re-triggers
+    on subsequent scrolls. Under `useReducedMotion()`, skips the RAF
+    animation entirely and renders the target value immediately, per the
+    hook's documented contract.
+  - Fixed one `tsc` error I introduced myself: `useInView`'s ref needs to
+    match the element it's attached to — used `useRef<HTMLDivElement>` on a
+    `<dl>` initially, corrected to `useRef<HTMLDListElement>`.
+  - Verified clean: `npx tsc --noEmit` — **0 errors in any file touched this
+    session.** Four pre-existing errors remain in `app/blog/[slug]/page.tsx`
+    (from Session 12, unrelated to this session's scope) — confirmed via
+    `git stash` that they exist identically without this session's changes,
+    so not introduced here and not fixed here (out of scope for Session 17;
+    flagging for whichever future session next touches the blog route).
+    `npx eslint .` — 0 errors. `npm run build` — stops at the same known
+    sandbox font-fetch step present since Session 1, nothing new.
+- **Repo state:** `components/feature-grid.tsx`, `components/stats-band.tsx`,
+  `components/glass-card.tsx` modified. `lib/use-count-up.ts` added. No
+  dependency changes — `framer-motion` was already installed.
+- **Next session starts at:** Session 18 below (Testimonials + Closing CTA
+  Band). Note the pre-existing `app/blog/[slug]/page.tsx` type errors above —
+  not this session's to fix, but worth knowing about if Session 23 (Blog Full
+  Revamp) doesn't get there first.
 
 ---
 
@@ -1226,3 +1293,6 @@ log" something, so later sessions don't need to dig through commits to find out.
 - Session 10 (Pricing Page): added a monthly/annual toggle. "Save 20%" is
   shown on the annual option; each tier's annual price is a precomputed
   ~20%-off number in the data rather than a live percentage calculation.
+- Session 17 (Stat Counters): hand-rolled `useCountUp` hook, not a counting
+  library — small enough (RAF loop + ease-out cubic) that a dependency
+  wasn't justified.
