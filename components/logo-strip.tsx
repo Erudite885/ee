@@ -48,11 +48,11 @@ function LogoBadge({
 export function LogoStrip() {
   return (
     <section className="overflow-hidden border-y border-[var(--glass-border)] py-10">
-      <div className="mx-auto max-w-6xl px-6">
+      {/* <div className="mx-auto max-w-6xl px-6">
         <p className="text-center font-mono text-xs uppercase tracking-widest text-muted">
           Trusted by teams at
         </p>
-      </div>
+      </div> */}
 
       <div className="relative mt-6 w-full overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
         <ul className="marquee-track flex w-max items-center gap-4">
