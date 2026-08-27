@@ -1484,7 +1484,7 @@ present (check `package.json` first — do not double-install).
 
 ## Session 23 — Blog Full Revamp
 
-- **Status:** NOT STARTED
+- **Status:** DONE
 - **Scope:** Bring `/blog` and `/blog/[slug]` up to the same premium
   standard.
   - Index: give the most recent post a larger "featured" treatment (bigger
@@ -1496,8 +1496,61 @@ present (check `package.json` first — do not double-install).
     for a more editorial, premium feel (pull quote styling, better spacing
     rhythm) and add a scroll-reveal on the header block.
 - **What changed:**
-- **Repo state:**
-- **Next session starts at:**
+  - `components/blog-card.tsx` — `BlogCard` brought up to the
+    FeatureGrid/ServicesGrid hover standard (Sessions 17/20): Framer Motion
+    `whileHover` lift (`cardLift`, same variant shape as those two) +
+    accent border/glow, `GlassCard`'s own `hoverScale` disabled so the two
+    don't fight. Tags upgraded from a flat accent tint to tint + `ring-1
+    ring-accent/20`. Date/reading-time row now uses `Calendar`/`Clock`
+    icons instead of bare text. File is now `"use client"` (Framer Motion
+    requires it) — the stretched-link click-through pattern from Session 9
+    /12 is unchanged.
+  - `components/blog-card.tsx` — new `FeaturedBlogCard` export, a separate
+    component rather than a `featured` boolean on `BlogCard`: the layout
+    genuinely diverges (two-column row + decorative accent panel vs. a
+    vertical card), not just size, so branching one component would mean
+    two unrelated render paths under one name. No post has a cover image
+    (Session 12 never added one to the frontmatter schema), so the
+    right-hand panel is a decorative radial-gradient + centered `Sparkles`
+    icon rather than a missing/broken `<Image>` — gives the featured slot
+    real visual weight without standing up an image pipeline this session
+    wasn't scoped to build.
+  - `app/blog/page.tsx` — destructures `getAllPosts()` (already
+    newest-first) into `[featuredPost, ...restPosts]`; renders
+    `FeaturedBlogCard` above the grid, `BlogCard` grid for the rest. Falls
+    back gracefully (no featured block) if `getAllPosts()` ever returns
+    empty — guarded with `featuredPost &&`.
+  - `components/scroll-reveal.tsx` — new, generic reusable client wrapper
+    (`ScrollReveal`) that fades/rises its children into view via
+    `whileInView`, `useReducedMotion`-aware. Built as a standalone wrapper
+    rather than adding motion directly into the shared `PageHeader`
+    component: `PageHeader` is a plain Server Component used on every
+    interior page, and `motion.div` requires a Client Component boundary —
+    wrapping the call site keeps that boundary local to the one page that
+    asked for it instead of forcing every `PageHeader` usage site-wide to
+    hydrate as a client component. Reusable by later sessions for the same
+    effect elsewhere, not just this header.
+  - `app/blog/[slug]/page.tsx` — wraps `<PageHeader>` in `<ScrollReveal>`.
+    `.prose` treatment expanded: `prose-lg` (up from base `prose`) for a
+    larger, more editorial type scale; `prose-p:leading-relaxed` for
+    looser paragraph rhythm; explicit `prose-blockquote:*` overrides for a
+    pull-quote look (left accent-color rule, `not-italic`, larger
+    `text-xl` medium-weight text) since Tailwind Typography's default
+    blockquote (thin gray border, italic) reads as an aside, not a pull
+    quote.
+  - `content/blog/zero-downtime-migrations.mdx` — added one blockquote
+    (a genuine one-line pull quote pulled from the post's own voice, not
+    filler) since none of the three Session 12 posts had one — there was
+    otherwise no blockquote anywhere in the content to verify the new
+    styling against.
+  - Verified clean: `npx tsc --noEmit` — 0 errors. `npx eslint .` — 0
+    errors. `npm run build` — same known sandbox font-fetch stopping point
+    as every prior session, nothing new before it.
+- **Repo state:** `components/blog-card.tsx`, `app/blog/page.tsx`,
+  `app/blog/[slug]/page.tsx`, `content/blog/zero-downtime-migrations.mdx`
+  modified; `components/scroll-reveal.tsx` added. No dependency changes.
+- **Next session starts at:** Session 24 below (Phase 2 Close-Out:
+  Cross-Site Consistency Pass).
 
 ---
 

@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { PageHeader } from "@/components/page-header";
+import { ScrollReveal } from "@/components/scroll-reveal";
 import { getAllSlugs, getPost, formatPostDate } from "@/lib/blog";
 
 export function generateStaticParams() {
@@ -31,11 +32,13 @@ export default async function BlogPostPage({
 
   return (
     <main>
-      <PageHeader
-        eyebrow={`${formatPostDate(post.date)} · ${post.readingTime}`}
-        title={post.title}
-        description={post.excerpt}
-      />
+      <ScrollReveal>
+        <PageHeader
+          eyebrow={`${formatPostDate(post.date)} · ${post.readingTime}`}
+          title={post.title}
+          description={post.excerpt}
+        />
+      </ScrollReveal>
 
       <article className="mx-auto max-w-3xl px-6 py-16">
         <Link
@@ -48,7 +51,25 @@ export default async function BlogPostPage({
 
         <p className="mt-8 text-sm text-muted">By {post.author}</p>
 
-        <div className="prose prose-neutral dark:prose-invert mt-6 max-w-none prose-headings:font-semibold prose-headings:tracking-tight prose-a:text-accent prose-a:no-underline hover:prose-a:underline">
+        <div
+          className={[
+            "prose prose-neutral dark:prose-invert prose-lg mt-6 max-w-none",
+            // Session 23: editorial pass over Session 12's base prose
+            // treatment — larger type scale (prose-lg) and looser
+            // paragraph leading for a more premium reading rhythm, plus
+            // explicit pull-quote styling for blockquotes (a left accent
+            // rule, larger italic-free serif-weight text, no default
+            // quotation glyph) since none of the three Session 12 posts
+            // had one to style against before now.
+            "prose-headings:font-semibold prose-headings:tracking-tight",
+            "prose-p:leading-relaxed",
+            "prose-a:text-accent prose-a:no-underline hover:prose-a:underline",
+            "prose-blockquote:border-l-4 prose-blockquote:border-accent",
+            "prose-blockquote:pl-6 prose-blockquote:not-italic",
+            "prose-blockquote:font-medium prose-blockquote:text-foreground",
+            "prose-blockquote:text-xl prose-blockquote:tracking-tight",
+          ].join(" ")}
+        >
           <MDXRemote source={post.content} />
         </div>
 

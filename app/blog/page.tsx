@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/page-header";
-import { BlogCard } from "@/components/blog-card";
+import { BlogCard, FeaturedBlogCard } from "@/components/blog-card";
 import { getAllPosts } from "@/lib/blog";
 
 export const metadata: Metadata = {
@@ -11,6 +11,7 @@ export const metadata: Metadata = {
 
 export default function BlogPage() {
   const posts = getAllPosts();
+  const [featuredPost, ...restPosts] = posts;
 
   return (
     <main>
@@ -21,8 +22,14 @@ export default function BlogPage() {
       />
 
       <section className="mx-auto max-w-6xl px-6 py-20">
+        {featuredPost && (
+          <div className="mb-10">
+            <FeaturedBlogCard post={featuredPost} />
+          </div>
+        )}
+
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {posts.map((post) => (
+          {restPosts.map((post) => (
             <BlogCard key={post.slug} post={post} />
           ))}
         </div>
