@@ -1,33 +1,66 @@
 const TRUSTED_BY = [
-  "Northwind",
-  "Initech",
-  "Globex",
-  "Umbra",
-  "Vertex Labs",
-  "Fabrikam",
+  { name: "Northwind", color: "#6366f1" },
+  { name: "Globex", color: "#22d3ee" },
+  { name: "Vertex Labs", color: "#a855f7" },
+  { name: "Initech", color: "#f97316" },
+  { name: "Umbra", color: "#ec4899" },
+  { name: "Fabrikam", color: "#14b8a6" },
+  { name: "Solstice Data", color: "#eab308" },
+  { name: "Ironclad Systems", color: "#3b82f6" },
+  { name: "Meridian Cloud", color: "#f43f5e" },
+  { name: "Pinnacle Labs", color: "#10b981" },
 ];
 
+function LogoBadge({
+  name,
+  color,
+  decorative = false,
+}: {
+  name: string;
+  color: string;
+  decorative?: boolean;
+}) {
+  return (
+    <li
+      className="flex shrink-0 items-center gap-2 rounded-full border border-[var(--glass-border)] bg-[var(--glass-bg)] px-5 py-2.5 backdrop-blur-xl"
+      aria-hidden={decorative || undefined}
+    >
+      <span
+        className="h-2.5 w-2.5 rounded-full"
+        style={{ backgroundColor: color, boxShadow: `0 0 12px 1px ${color}` }}
+      />
+      <span className="text-sm font-medium tracking-wide whitespace-nowrap">
+        {name}
+      </span>
+    </li>
+  );
+}
+
 /**
- * Trust/logo strip. No actual client logo image assets exist yet, so this
- * renders wordmarks (muted, monospace) rather than <Image> placeholders —
- * swap in real logo SVGs here once the company has real clients to name, no
- * structural change needed.
+ * Trust/logo strip. Session 16 revamp: seamless infinite horizontal
+ * marquee (CSS keyframe, see .marquee-track in globals.css) instead of a
+ * static wrapped row. No real client logo assets exist, so each entry is a
+ * colored dot + wordmark badge — vibrant and distinct per company rather
+ * than uniform muted text, so the strip reads as lively. The track list is
+ * rendered twice back to back so the -50% scroll loops with an invisible
+ * seam; screen readers only see one real list (aria-hidden duplicate).
  */
 export function LogoStrip() {
   return (
-    <section className="border-y border-[var(--glass-border)] py-10">
+    <section className="overflow-hidden border-y border-[var(--glass-border)] py-10">
       <div className="mx-auto max-w-6xl px-6">
         <p className="text-center font-mono text-xs uppercase tracking-widest text-muted">
           Trusted by teams at
         </p>
-        <ul className="mt-6 flex flex-wrap items-center justify-center gap-x-10 gap-y-4">
-          {TRUSTED_BY.map((name) => (
-            <li
-              key={name}
-              className="text-sm font-medium tracking-wide text-muted opacity-70 transition-opacity hover:opacity-100"
-            >
-              {name}
-            </li>
+      </div>
+
+      <div className="relative mt-6 w-full overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
+        <ul className="marquee-track flex w-max items-center gap-4">
+          {TRUSTED_BY.map((company) => (
+            <LogoBadge key={`a-${company.name}`} {...company} />
+          ))}
+          {TRUSTED_BY.map((company) => (
+            <LogoBadge key={`b-${company.name}`} {...company} decorative />
           ))}
         </ul>
       </div>

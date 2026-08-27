@@ -128,3 +128,68 @@ body {
     display: none;
   }
 }
+
+/* Hero headline "light flare" — a soft highlight sweeps across the text
+   once on load, then loops slowly and gently (long duration, easy timing)
+   so it reads as ambient premium polish, not a loading skeleton or a
+   marquee sign. Explicit --foreground/--accent stops rather than
+   currentColor, since currentColor would resolve to the element's own
+   (transparent, due to background-clip) color. */
+.flare-text {
+  background-image: linear-gradient(
+    110deg,
+    var(--foreground) 35%,
+    color-mix(in oklab, var(--accent) 65%, white 35%) 50%,
+    var(--foreground) 65%
+  );
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: flare-sweep 5s ease-in-out 0.6s infinite;
+}
+
+@keyframes flare-sweep {
+  0% {
+    background-position: 200% center;
+  }
+  40%,
+  100% {
+    background-position: -50% center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flare-text {
+    animation: none;
+    background-position: center;
+  }
+}
+
+/* Trusted-by logo marquee — seamless horizontal auto-scroll. Track renders
+   the logo list twice back to back and scrolls exactly -50%, so the seam
+   between the first and second copy is invisible as long as both copies
+   are identical (LogoStrip guarantees this). Pauses on hover and is fully
+   static under reduced motion. */
+.marquee-track {
+  animation: marquee-scroll 28s linear infinite;
+}
+
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+
+@keyframes marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
+}

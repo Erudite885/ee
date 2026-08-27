@@ -945,7 +945,7 @@ present (check `package.json` first — do not double-install).
 
 ## Session 16 — Hero: Framer Motion, Light-Flare Headline, Logo Marquee
 
-- **Status:** NOT STARTED
+- **Status:** DONE
 - **Scope:**
   - Add `framer-motion` if not already a dependency.
   - Hero (`components/hero.tsx`): staggered entrance animation on mount —
@@ -967,9 +967,69 @@ present (check `package.json` first — do not double-install).
     invent plausible placeholder company names consistent with the fictional
     clients already seeded in Sessions 6/9 (Northwind, Globex, Vertex Labs)
     plus a few new invented ones to fill out the row.
+- **Decision:** Light-flare sweep implemented as pure CSS `@keyframes`
+  (`.flare-text` in `app/globals.css`), not Framer Motion. A `background-clip:
+  text` gradient position animation is exactly the kind of thing CSS handles
+  natively and cheaply — driving it through Framer Motion would mean
+  animating a custom motion value into a CSS variable for no real benefit.
+  Framer Motion is used for the entrance stagger instead, where its
+  variants/orchestration actually earns its keep.
 - **What changed:**
-- **Repo state:**
-- **Next session starts at:**
+  - `framer-motion` was already a dependency (installed Session 2, listed in
+    `BLUEPRINT.md`'s stack table) — confirmed via `package.json` first, no
+    reinstall.
+  - `components/hero.tsx` — converted to a client component (required for
+    Framer Motion). Parent `motion.div` with a `container` variants object
+    (`staggerChildren`/`delayChildren`) wraps four `motion` children (eyebrow
+    badge, headline, subheading, CTA row), each using a shared `item` variant
+    (fade + 16px slide-up). `useReducedMotion()` from `framer-motion` gates
+    all of it — under reduced motion, `variants`/`initial`/`animate` are all
+    `undefined`, so children render at their final state immediately with no
+    animation, rather than relying only on the global CSS reduced-motion
+    override (which handles the CSS-driven `.flare-text`/`.marquee-track`
+    animations but wouldn't touch Framer Motion's JS-driven transforms).
+    Headline text wrapped in a `<span className="flare-text">`.
+  - `app/globals.css` — added `.flare-text` (gradient-position keyframe sweep
+    across the headline, `var(--foreground)` → `color-mix(..., var(--accent)
+    ..., white)` → `var(--foreground)`, 5s ease-in-out loop, explicit
+    reduced-motion override freezing it centered) and `.marquee-track` +
+    `@keyframes marquee-scroll` (translateX 0 → -50%, 28s linear infinite,
+    `animation-play-state: paused` on `:hover`, explicit reduced-motion
+    override disabling it). Both also get frozen by the pre-existing global
+    `*` reduced-motion rule from Session 2 — the component-specific overrides
+    are slightly redundant with that but make the intended frozen state
+    explicit rather than relying on freeze-at-arbitrary-keyframe-position.
+  - `components/logo-strip.tsx` — rebuilt. 10 invented placeholder
+    companies (kept Northwind/Globex/Vertex Labs/Initech/Umbra/Fabrikam from
+    the original list, added Solstice Data, Ironclad Systems, Meridian
+    Cloud, Pinnacle Labs), each rendered as a pill badge (colored glow dot +
+    wordmark) instead of plain muted text — 10 distinct accent colors so the
+    strip reads as vibrant. The `<ul>` renders the list twice back-to-back
+    (`w-max`, `flex`) so the `-50%` marquee scroll loops with an invisible
+    seam; wrapped in a container with a horizontal `mask-image` fade at both
+    edges so logos don't hard-clip at the viewport boundary. Accessibility:
+    only the first copy is a real accessible list — the duplicate copy is
+    `aria-hidden` via a `decorative` prop on `LogoBadge`, so screen readers
+    don't announce every company name twice.
+  - Fixed a TS error along the way: Framer Motion's `Variants` type requires
+    `ease` to be its specific `Easing` literal type, not a bare `string` —
+    inferred object literals widen `"easeOut"` to `string` and fail to
+    satisfy `Variants`. Fixed by explicitly typing `container`/`item` as
+    `Variants` (imported from `framer-motion`) rather than leaving them
+    inferred. **Note for future sessions adding Framer Motion variants
+    objects: always type them explicitly as `Variants`, don't leave them
+    inferred, or `tsc` will fail on the `ease` field.**
+  - Verified clean: `npx tsc --noEmit` (0 errors), `npx eslint .`
+    (0 errors), `npm run build` stops only at the known sandbox font-fetch
+    step, nothing new.
+- **Repo state:** `components/hero.tsx`, `components/logo-strip.tsx`
+  modified. `app/globals.css` modified (added `.flare-text`,
+  `.marquee-track` + keyframes). No dependency changes — `framer-motion`
+  was already installed.
+- **Next session starts at:** Session 17 below (Capability/Feature Cards +
+  Animated Stat Counters). The `Variants`-typing note above applies there
+  too if that session adds its own Framer Motion variants for the card
+  hover states.
 
 ---
 
