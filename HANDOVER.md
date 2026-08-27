@@ -1271,7 +1271,7 @@ present (check `package.json` first — do not double-install).
 
 ## Session 20 — Services Page Full Revamp
 
-- **Status:** NOT STARTED
+- **Status:** DONE
 - **Scope:** Bring `/services` up to the premium visual standard set by
   Sessions 16–19. Modernize `components/services-grid.tsx` cards to match
   the new feature-card treatment from Session 17 (icon badges, stronger
@@ -1281,8 +1281,46 @@ present (check `package.json` first — do not double-install).
   feels thin compared to the new home page — use judgment, don't force a
   section that doesn't earn its place.
 - **What changed:**
-- **Repo state:**
-- **Next session starts at:**
+  - `components/services-grid.tsx` — card treatment brought in line with
+    `FeatureGrid` (Session 17): icon badge changed from a bare
+    `rounded-full` accent circle to the same `h-12 w-12 rounded-xl
+    bg-accent/10 ring-1 ring-accent/20` treatment; title bumped from
+    `text-lg font-medium` to `text-xl font-semibold tracking-tight`; hover
+    changed from `GlassCard`'s default CSS scale-pop to a Framer Motion
+    `whileHover` lift (`y: -6`) + accent border/glow
+    (`hover:border-accent hover:shadow-[0_20px_60px_-15px_var(--accent)]`),
+    with `GlassCard`'s `hoverScale` disabled so the two don't fight — same
+    pattern `FeatureGrid` established, reused rather than reinvented.
+  - Added a staggered scroll-reveal on the grid: outer `motion.div` on the
+    grid container drives `staggerChildren` via `whileInView` (`once: true`,
+    `-80px` margin), each card is a `motion.div` with its own
+    hidden→visible fade/rise. This sits **outside** the existing hover-lift
+    `motion.div` per card rather than merged into one variants object —
+    scroll-reveal (`initial`/`whileInView`) and hover-lift
+    (`initial`/`whileHover`) need different trigger props on the same
+    element, and Framer Motion only resolves one `variants` prop per
+    component, so nesting two independent `motion.div`s avoids one
+    animation clobbering the other. Both fully skipped under
+    `useReducedMotion()` (grid renders unanimated, cards render in place).
+  - Kept the "includes" bullet list — that's the intentional differentiator
+    from `FeatureGrid` noted in the Session 8 comment (heavier card, one
+    extra content block), so it wasn't dropped in the name of matching
+    `FeatureGrid` exactly.
+  - **Decide and log — intro band:** did not add one. `/services` already
+    opens with `PageHeader`'s eyebrow/title/description (the same weight
+    `/case-studies` and other interior pages use before going straight into
+    their content grid), and six cards with icon badges, an "includes" list,
+    and the new hover/reveal treatment don't read as thin next to that
+    precedent. Forcing an extra animated band above the grid would be
+    padding, not a section earning its place — explicitly in scope to skip
+    per this session's own instructions.
+  - Verified clean: `npx tsc --noEmit` — 0 errors. `npx eslint .` — 0
+    errors. `npm run build` — same known sandbox font-fetch stopping point
+    as every prior session, nothing new before it.
+- **Repo state:** `components/services-grid.tsx` modified. No dependency
+  changes.
+- **Next session starts at:** Session 21 below (Pricing Page: New Scheme,
+  Pro-Tier Card Treatment).
 
 ---
 

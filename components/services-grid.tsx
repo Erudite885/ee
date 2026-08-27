@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Boxes,
   Cloud,
@@ -6,6 +8,7 @@ import {
   ShieldCheck,
   Wrench,
 } from "lucide-react";
+import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { GlassCard } from "@/components/glass-card";
 
 const SERVICES = [
@@ -77,34 +80,95 @@ const SERVICES = [
   },
 ];
 
+// Explicitly typed as Variants — inferred object literals widen `ease` to
+// `string`, which fails Framer Motion's stricter Easing type (see Session
+// 16's note in HANDOVER.md, reused here per Session 17's FeatureGrid
+// precedent).
+const cardLift: Variants = {
+  rest: { y: 0 },
+  hover: { y: -6, transition: { duration: 0.25, ease: "easeOut" } },
+};
+
+// Staggered scroll-reveal container/item pair. `container` fires
+// `staggerChildren` once each card's parent enters the viewport;
+// `item` is the actual fade/rise each card animates through. Split from
+// `cardLift` (hover) since both animate the same element via separate
+// `motion.div` wrappers — see the nested-motion note below.
+const revealContainer: Variants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.1 } },
+};
+
+const revealItem: Variants = {
+  hidden: { opacity: 0, y: 24 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
+};
+
 /**
  * Services page offering grid. One GlassCard per offering, per Session 8
  * scope — heavier than FeatureGrid's cards (adds an "includes" bullet list),
  * so this is its own component rather than reusing FeatureGrid directly.
+ *
+ * Session 20: brought up to the Session 17 FeatureGrid card standard (icon
+ * badge in the accent-tinted rounded-xl treatment instead of a bare
+ * rounded-full, a Framer Motion `whileHover` lift + border glow layered on
+ * top of GlassCard with hoverScale disabled so it doesn't fight the lift,
+ * stronger title hierarchy) plus a staggered scroll-reveal on the grid
+ * itself, entering once via `whileInView`.
+ *
+ * Two separate `motion.div` wrappers per card (outer for scroll-reveal,
+ * inner for hover-lift) rather than merging both animations into one set of
+ * variants — `initial`/`whileInView` and `initial`/`whileHover` need
+ * different trigger props on the same element, and Framer Motion resolves
+ * exactly one `variants` prop per component, so nesting keeps the two
+ * independent instead of one clobbering the other.
  */
 export function ServicesGrid() {
+  const shouldReduceMotion = useReducedMotion();
+
   return (
-    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <motion.div
+      className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+      initial={shouldReduceMotion ? undefined : "hidden"}
+      whileInView={shouldReduceMotion ? undefined : "visible"}
+      viewport={{ once: true, margin: "-80px" }}
+      variants={shouldReduceMotion ? undefined : revealContainer}
+    >
       {SERVICES.map(({ icon: Icon, title, description, includes }) => (
-        <GlassCard key={title} className="flex flex-col gap-4">
-          <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-accent/10 text-accent">
-            <Icon size={20} />
-          </span>
-          <h3 className="text-lg font-medium">{title}</h3>
-          <p className="text-sm text-muted">{description}</p>
-          <ul className="mt-auto flex flex-col gap-2 border-t border-[var(--glass-border)] pt-4 text-sm text-muted">
-            {includes.map((item) => (
-              <li key={item} className="flex items-start gap-2">
-                <span
-                  aria-hidden
-                  className="mt-2 h-1 w-1 shrink-0 rounded-full bg-accent"
-                />
-                {item}
-              </li>
-            ))}
-          </ul>
-        </GlassCard>
+        <motion.div
+          key={title}
+          variants={shouldReduceMotion ? undefined : revealItem}
+        >
+          <motion.div
+            initial="rest"
+            whileHover={shouldReduceMotion ? undefined : "hover"}
+            animate="rest"
+            variants={shouldReduceMotion ? undefined : cardLift}
+          >
+            <GlassCard
+              hoverScale={false}
+              className="flex h-full flex-col gap-4 transition-[border-color,box-shadow] duration-300 hover:border-accent hover:shadow-[0_20px_60px_-15px_var(--accent)]"
+            >
+              <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-accent/10 text-accent ring-1 ring-accent/20">
+                <Icon size={22} />
+              </span>
+              <h3 className="text-xl font-semibold tracking-tight">{title}</h3>
+              <p className="text-sm text-muted">{description}</p>
+              <ul className="mt-auto flex flex-col gap-2 border-t border-[var(--glass-border)] pt-4 text-sm text-muted">
+                {includes.map((item) => (
+                  <li key={item} className="flex items-start gap-2">
+                    <span
+                      aria-hidden
+                      className="mt-2 h-1 w-1 shrink-0 rounded-full bg-accent"
+                    />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </GlassCard>
+          </motion.div>
+        </motion.div>
       ))}
-    </div>
+    </motion.div>
   );
 }
