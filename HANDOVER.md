@@ -848,15 +848,86 @@ Shared chrome: sticky glass navbar, mega-footer with sitemap/social/newsletter.
 
 ## Session 15 — Polish & QA
 
-- **Status:** NOT STARTED
+- **Status:** DONE
 - **Scope:** Full-site pass: accessibility audit (contrast in both light/dark,
   focus states, reduced-motion compliance), responsive audit (mobile/tablet/
   desktop for every page), Lighthouse pass, meta tags/OpenGraph, `sitemap.xml`,
   `robots.txt`. This is the final session — site is considered complete after
   this entry is marked `DONE`.
 - **What changed:**
-- **Repo state:**
-- **Next session starts at:** None — project complete.
+  - **Accessibility audit:**
+    - Added a global `:focus-visible` rule in `app/globals.css` (2px accent
+      outline, 2px offset) so every focusable element gets a guaranteed,
+      on-brand, visible keyboard focus indicator — not just elements with an
+      explicit `focus:` utility class. Browser defaults were functional but
+      low-contrast on glass surfaces in dark mode.
+    - Confirmed `prefers-reduced-motion` was already handled globally
+      (Session 2) and specifically for the `GlassCard` flare effect — no
+      changes needed there.
+    - Confirmed the mobile nav toggle (Session 3) already has correct
+      `aria-label`/`aria-expanded` — no changes needed.
+    - Confirmed no bare `<img>` tags exist anywhere (icons are `lucide-react`
+      components, no photography/headshots in use yet) — nothing to add alt
+      text to, but **flag for whoever adds real photography later**: every
+      new `<img>`/`next/image` needs a real `alt`, not `alt=""`, unless it's
+      genuinely decorative.
+    - Spot-checked contrast: `--muted` against both light and dark
+      `--background` tokens reads comfortably above WCAG AA for body text
+      at current sizes. `--accent` (#6366f1) as a white-text button
+      background is borderline-but-passing for large/bold text; **flag for
+      a future session** if the accent color ever gets darkened further,
+      re-check contrast at that point.
+  - **Responsive audit:** Reviewed every page and grid component
+    (`ServicesGrid`, `TeamGrid`, `CaseStudyCard`/`BlogCard` grids,
+    `PricingGrid`, `OpenRoles`) for breakpoint coverage — all already use
+    `sm:`/`lg:` (occasionally `md:`) grid-column steps from earlier sessions,
+    no gaps found. `Timeline` (About page) and individual card components
+    intentionally have no breakpoints of their own — they're single-column
+    or full-width-fluid by design and rely on their parent grid/container
+    for responsiveness, which is correct, not an oversight.
+  - **Meta tags / OpenGraph:**
+    - `app/layout.tsx` — added `metadataBase` (from `NEXT_PUBLIC_SITE_URL`
+      env var, defaults to a placeholder `https://www.company.com` — **set
+      this env var to the real production domain before launch**, every
+      relative OG/sitemap URL depends on it), a `title.template` (`"%s"`,
+      a pass-through — every existing page title already includes
+      `"| Company Name"` itself, so a template that appended it again would
+      double up), root `openGraph` defaults (type, siteName, locale, url),
+      `twitter` card metadata, and an explicit `robots: { index: true, follow: true }`.
+    - `app/opengraph-image.tsx` — new. Dynamic OG image via `next/og`'s
+      `ImageResponse`, `runtime = "nodejs"` (Next 16 deprecated the Edge
+      Runtime in favor of this — **use `"nodejs"`, not `"edge"`, in any
+      future route/image handler that needs a runtime declared**). No static
+      design asset needed; this becomes the default OG image for every route
+      that doesn't define its own `opengraph-image.tsx`.
+  - **`sitemap.xml` / `robots.txt`:**
+    - `app/sitemap.ts` — new, Next.js `MetadataRoute.Sitemap` convention.
+      Lists all static routes plus every blog post (via `getAllSlugs()` from
+      `lib/blog.ts`) and every case study (via `CASE_STUDIES` from
+      `lib/case-studies.ts`) — pulls from the same data sources those pages
+      render from, so it can't drift out of sync as content is added.
+    - `app/robots.ts` — new, allows all crawling except `/api/`, points to
+      the sitemap.
+  - Verified clean: ran `npx next typegen` (caught the Edge Runtime
+    deprecation warning, fixed by switching to `"nodejs"`), `npx tsc --noEmit`
+    (0 errors), `npx eslint .` (0 errors), `npm run build` stops only at the
+    known sandbox font-fetch step — same limitation present since Session 1,
+    confirmed one final time not to have grown into anything else.
+  - **Lighthouse pass:** could not run an actual Lighthouse audit from this
+    sandbox — no display/headless-browser tooling available and no network
+    route to run one remotely. Everything above (focus states, contrast,
+    responsive layout, meta tags, sitemap/robots) is exactly what Lighthouse
+    checks for, done manually/by code review instead. **Run a real Lighthouse
+    pass in a browser or CI once this is deployed somewhere reachable**,
+    before calling the site launch-ready.
+- **Repo state:** `app/opengraph-image.tsx`, `app/sitemap.ts`, `app/robots.ts`
+  added. `app/globals.css`, `app/layout.tsx` modified. No dependency changes
+  — `next/og` ships as part of `next` itself, no new package needed.
+- **Next session starts at:** None — project complete, with three explicit
+  loose ends logged above for whoever deploys this: (1) set
+  `NEXT_PUBLIC_SITE_URL` to the real domain, (2) verify SMTP delivery end to
+  end with real credentials (flagged in Session 14), (3) run a real
+  Lighthouse pass once deployed.
 
 ---
 

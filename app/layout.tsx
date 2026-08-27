@@ -14,9 +14,29 @@ const fontMono = JetBrains_Mono({
   subsets: ["latin"],
 });
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.company.com";
+
 export const metadata: Metadata = {
-  title: "Company Name",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "Company Name — Software engineering, platform, and security",
+    template: "%s",
+  },
   description: "A modern software company.",
+  openGraph: {
+    type: "website",
+    siteName: "Company Name",
+    locale: "en_US",
+    url: SITE_URL,
+  },
+  twitter: {
+    card: "summary_large_image",
+    site: "@companyname",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
