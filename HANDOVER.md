@@ -1422,7 +1422,7 @@ present (check `package.json` first — do not double-install).
 
 ## Session 22 — Careers Page → Job Board Feed Redesign
 
-- **Status:** NOT STARTED
+- **Status:** DONE
 - **Scope:** Restructure `/careers` from a static "grid of role cards" into
   something that feels like a real job board feed (LinkedIn Jobs / similar
   in spirit, not a literal clone):
@@ -1441,8 +1441,44 @@ present (check `package.json` first — do not double-install).
     likely a compact intro banner or sidebar rather than the page's main
     focus the way it is now.
 - **What changed:**
-- **Repo state:**
-- **Next session starts at:**
+  - `lib/careers.ts` — added a `postedLabel` field to `Role` (e.g. "Posted
+    2 days ago") per role, so the feed's posted-date badge is real per-role
+    data rather than a single static string.
+  - `components/open-roles.tsx` — full rewrite, now `"use client"` (needed
+    for the per-row bookmark toggle's local state):
+    - `RoleFilterBar`: a search input + department/location `<select>`s
+      above the list. **Explicitly non-functional** — the inputs are
+      uncontrolled and don't filter `OPEN_ROLES`, per the scope's own
+      allowance for UI-only chrome. Real filtering (controlled selects +
+      a derived/filtered list) would be a natural follow-up, intentionally
+      not bundled into this session so the diff stays focused on the feed
+      layout itself.
+    - `RoleRow`: one continuous row per role instead of an isolated
+      `GlassCard` — company mark placeholder (a fixed "CN" monogram badge,
+      since every role shares the same posting company, not per-role logo
+      art), title as the primary link, an "Actively hiring" pill next to
+      it, a metadata line (department/location/type icons + the new
+      `postedLabel`), description, requirement tags, and an "Apply now"
+      button visually distinct from the title link (solid accent pill vs.
+      plain text link). A `Bookmark` icon toggle sits next to Apply —
+      local `useState` only, flips fill/color on click, no persistence,
+      exactly as scoped.
+    - The list itself is one flat bordered container with row dividers
+      (`border-b` between rows) rather than a grid of separate glass
+      surfaces — a feed reads as one continuous list, which six competing
+      `GlassCard`s didn't support.
+  - `app/careers/page.tsx` — culture/values section condensed from a full
+    `h2` + four `h3`/`p` blocks into a single compact glass banner: one
+    short paragraph plus the same four values now rendered as pill tags
+    instead of headed paragraphs. No content dropped, just demoted to
+    supporting context so the role feed reads as the page's main focus, per
+    scope.
+  - Verified clean: `npx tsc --noEmit` — 0 errors. `npx eslint .` — 0
+    errors. `npm run build` — same known sandbox font-fetch stopping point
+    as every prior session, nothing new before it.
+- **Repo state:** `lib/careers.ts`, `components/open-roles.tsx`,
+  `app/careers/page.tsx` modified. No dependency changes.
+- **Next session starts at:** Session 23 below (Blog Full Revamp).
 
 ---
 

@@ -17,47 +17,31 @@ export default function CareersPage() {
         description="We're a remote-first team of engineers, designers, and operators who believe great software shouldn't require great pain to build."
       />
 
-      {/* Culture / values */}
-      <section className="mx-auto max-w-3xl px-6 py-20">
-        <h2 className="text-2xl font-semibold tracking-tight">
-          How we work
-        </h2>
-        <p className="mt-4 text-muted">
-          We don&apos;t do ping-pong tables or mandatory fun. We do trust,
-          autonomy, and a shared obsession with making things that work. Every
-          decision traces back to one question: does this help our customers
-          ship better software, faster?
-        </p>
-
-        <div className="mt-10 grid gap-8 sm:grid-cols-2">
-          <div>
-            <h3 className="text-base font-medium">Remote-first, not remote-only</h3>
-            <p className="mt-2 text-sm text-muted">
-              We hire across time zones, not zip codes. Async by default,
-              synchronous when it matters. Results over hours.
-            </p>
-          </div>
-          <div>
-            <h3 className="text-base font-medium">Deep work, shallow meetings</h3>
-            <p className="mt-2 text-sm text-muted">
-              Most weeks have two standing meetings. Everything else is
-              written, reviewed, and decided in docs — not conference rooms.
-            </p>
-          </div>
-          <div>
-            <h3 className="text-base font-medium">Own the outcome</h3>
-            <p className="mt-2 text-sm text-muted">
-              Small teams, clear ownership. You&apos;ll know exactly what
-              you&apos;re responsible for and have the authority to ship it.
-            </p>
-          </div>
-          <div>
-            <h3 className="text-base font-medium">Grow in public</h3>
-            <p className="mt-2 text-sm text-muted">
-              We write, speak, and open-source what we learn. Your growth
-              here is documented and shareable, not locked inside a
-              private wiki.
-            </p>
+      {/* Culture / values — Session 22: condensed from a full section with
+          four h3+p blocks into a single compact glass banner of short
+          labeled pills. The role feed below is now the page's main focus
+          per Session 22 scope; this still carries the same four values,
+          just as supporting context instead of competing real estate. */}
+      <section className="mx-auto max-w-4xl px-6 py-16">
+        <div className="rounded-2xl border border-[var(--glass-border)] bg-[var(--glass-bg)] p-6 backdrop-blur-xl sm:p-8">
+          <p className="text-sm text-muted">
+            We don&apos;t do ping-pong tables or mandatory fun. We do trust,
+            autonomy, and a shared obsession with making things that work.
+          </p>
+          <div className="mt-5 flex flex-wrap gap-2">
+            {[
+              "Remote-first, not remote-only",
+              "Deep work, shallow meetings",
+              "Own the outcome",
+              "Grow in public",
+            ].map((value) => (
+              <span
+                key={value}
+                className="rounded-full border border-[var(--glass-border)] bg-[var(--background)] px-3 py-1.5 text-xs font-medium text-foreground"
+              >
+                {value}
+              </span>
+            ))}
           </div>
         </div>
       </section>

@@ -3,6 +3,10 @@ export interface Role {
   department: string;
   location: string;
   type: string;
+  /** Freeform "posted X ago" label — feed-appropriate chrome per Session
+   * 22, sits next to the role as a badge rather than buried in the body
+   * copy. */
+  postedLabel: string;
   description: string;
   requirements: string[];
 }
@@ -17,6 +21,7 @@ export const OPEN_ROLES: Role[] = [
     department: "Engineering",
     location: "Remote",
     type: "Full-time",
+    postedLabel: "Posted 2 days ago",
     description:
       "Own the component architecture behind our customer-facing dashboards, working closely with design on motion and accessibility.",
     requirements: [
@@ -30,6 +35,7 @@ export const OPEN_ROLES: Role[] = [
     department: "Engineering",
     location: "Remote",
     type: "Full-time",
+    postedLabel: "Posted 5 days ago",
     description:
       "Build and operate the CI/CD and infrastructure-as-code tooling our client teams deploy through every day.",
     requirements: [
@@ -43,6 +49,7 @@ export const OPEN_ROLES: Role[] = [
     department: "Design",
     location: "Remote",
     type: "Full-time",
+    postedLabel: "Posted 1 week ago",
     description:
       "Shape the interfaces for our internal tooling and client-facing products, from early concept through shipped feature.",
     requirements: [
@@ -56,6 +63,7 @@ export const OPEN_ROLES: Role[] = [
     department: "Customer Success",
     location: "Remote (US/EU overlap)",
     type: "Full-time",
+    postedLabel: "Posted 1 week ago",
     description:
       "Be the primary point of contact for a portfolio of enterprise accounts, from onboarding through renewal.",
     requirements: [
@@ -69,6 +77,7 @@ export const OPEN_ROLES: Role[] = [
     department: "Security",
     location: "Remote",
     type: "Full-time",
+    postedLabel: "Posted 2 weeks ago",
     description:
       "Lead security audits and threat modeling for client engagements, and harden our own internal systems.",
     requirements: [
@@ -82,6 +91,7 @@ export const OPEN_ROLES: Role[] = [
     department: "Marketing",
     location: "Remote",
     type: "Contract",
+    postedLabel: "Posted 3 weeks ago",
     description:
       "Turn engineering work into case studies, documentation, and long-form technical content that engineers actually want to read.",
     requirements: [
