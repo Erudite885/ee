@@ -931,6 +931,233 @@ Shared chrome: sticky glass navbar, mega-footer with sitemap/social/newsletter.
 
 ---
 
+# PHASE 2 — Premium Design Revamp
+
+The site is functionally complete (Sessions 1–15). This phase is a full
+visual/interaction overhaul: current UI reads as "scaffolded," not "premium
+corporate software company." Sessions 16–24 below replace it end to end —
+Framer Motion throughout, modernized cards, a distinct pricing-tier
+treatment, animated counters, a job-board-style careers page, and a
+glassmorphic footer. **Same delivery convention as Phase 1** (see
+`BLUEPRINT.md` §5): one session at a time, verify, commit, patch, update this
+file, stop. Each session below should install `framer-motion` if not already
+present (check `package.json` first — do not double-install).
+
+## Session 16 — Hero: Framer Motion, Light-Flare Headline, Logo Marquee
+
+- **Status:** NOT STARTED
+- **Scope:**
+  - Add `framer-motion` if not already a dependency.
+  - Hero (`components/hero.tsx`): staggered entrance animation on mount —
+    eyebrow → headline → subheading → CTA buttons fade/slide in sequence,
+    not all at once. Respect `prefers-reduced-motion` (skip to final state
+    instantly, no stagger).
+  - Headline gets a subtle animated "light flare" sweep — a moving
+    highlight/shine gradient that passes across the text once on load (and
+    optionally loops slowly, softly — this must read as premium/subtle, not
+    like a loading skeleton or a casino sign). Implement via a background-clip
+    text gradient animated with Framer Motion or CSS `@keyframes`, whichever
+    gives a cleaner result — decide and log below.
+  - "Trusted by teams at" section: convert to an infinite horizontal
+    auto-scrolling logo marquee (seamless loop, pause on hover, pause
+    entirely under reduced-motion). Since there's no real client logo
+    library, add vibrant placeholder logos — simple wordmark-style SVGs or
+    styled text badges (8–10 of them) in a mix of accent colors so the strip
+    reads as lively, not empty. Do not use real company names/trademarks —
+    invent plausible placeholder company names consistent with the fictional
+    clients already seeded in Sessions 6/9 (Northwind, Globex, Vertex Labs)
+    plus a few new invented ones to fill out the row.
+- **What changed:**
+- **Repo state:**
+- **Next session starts at:**
+
+---
+
+## Session 17 — Capability/Feature Cards + Animated Stat Counters
+
+- **Status:** NOT STARTED
+- **Scope:**
+  - Redesign `components/feature-grid.tsx` (home page capability cards) —
+    currently reads as blank/generic. Add real visual weight: icon treatment
+    (colored icon badge, not a bare icon), stronger hover state (Framer
+    Motion `whileHover`, subtle lift + border glow), better internal spacing
+    and hierarchy (eyebrow/label, title, description sized distinctly).
+  - Add animated counting numbers to the home page stats band
+    (`components/stats-band.tsx` or equivalent — check what exists from
+    Session 5 first). Counters animate from 0 to their target value when
+    scrolled into view (use Framer Motion's `useInView` + a small custom
+    counter hook, or install a tiny dedicated library like `react-countup` —
+    decide and log below; prefer the hand-rolled hook unless it turns out
+    genuinely awkward, to avoid an extra dependency for something this small).
+- **Decide and log:** hand-rolled counter hook vs. a counting library.
+- **What changed:**
+- **Repo state:**
+- **Next session starts at:**
+
+---
+
+## Session 18 — Testimonials + Closing CTA Band, Premium Redesign
+
+- **Status:** NOT STARTED
+- **Scope:**
+  - Revamp `components/testimonials.tsx` ("Loved by teams who ship" section)
+    — currently generic. Corporate-grade quote card treatment: larger/serif
+    or distinct quote typography, a placeholder avatar (initials-in-a-circle
+    is fine, no real headshots), name/role/company laid out with clear
+    hierarchy, subtle glass depth consistent with `GlassCard`, staggered
+    scroll-reveal via Framer Motion (`whileInView`) rather than appearing
+    all at once.
+  - Revamp the closing CTA band ("Ready to build something faster") to
+    match — bolder background treatment (gradient or glow, not a flat
+    surface), animated entrance on scroll, a button that feels like the
+    single most important click on the page, not a default-styled link.
+- **What changed:**
+- **Repo state:**
+- **Next session starts at:**
+
+---
+
+## Session 19 — Navbar Contact Pulse + Glassmorphic Footer
+
+- **Status:** NOT STARTED
+- **Scope:**
+  - `components/navbar.tsx`: the "Contact us" button gets a subtle ambient
+    pulse (a soft, slow glow/scale breathing effect — understated, meant to
+    be noticed peripherally, not blinking or attention-grabbing) and on
+    hover fades toward transparent (background opacity drops, border/text
+    remain legible) rather than the current opacity-90 treatment. Respect
+    reduced motion (no pulse animation, static state instead).
+  - `components/footer.tsx`: apply full glassmorphism — `backdrop-blur`,
+    translucent background using the same `--glass-bg`/`--glass-border`
+    tokens `GlassCard` already uses, instead of the current flat
+    bordered-top treatment. Should read as one continuous glass surface
+    across the full footer width, consistent with the navbar's glass
+    treatment from Session 3.
+- **What changed:**
+- **Repo state:**
+- **Next session starts at:**
+
+---
+
+## Session 20 — Services Page Full Revamp
+
+- **Status:** NOT STARTED
+- **Scope:** Bring `/services` up to the premium visual standard set by
+  Sessions 16–19. Modernize `components/services-grid.tsx` cards to match
+  the new feature-card treatment from Session 17 (icon badges, stronger
+  hover, better hierarchy) rather than the current plain bullet-list cards.
+  Add a Framer Motion scroll-reveal to the grid (staggered, not simultaneous).
+  Consider a short animated intro band above the grid if the page otherwise
+  feels thin compared to the new home page — use judgment, don't force a
+  section that doesn't earn its place.
+- **What changed:**
+- **Repo state:**
+- **Next session starts at:**
+
+---
+
+## Session 21 — Pricing Page: New Scheme, Pro-Tier Card Treatment
+
+- **Status:** NOT STARTED
+- **Scope:** Full redesign, not a polish pass — current pricing page reads
+  as unfinished and doesn't make anyone want to pay.
+  - **No bubbles, no ambient background animation, no cursor-flare glow
+    anywhere on this page.** This is a deliberate contrast with the rest of
+    the techy-glass site: pricing should feel calm, confident, and clean, not
+    playful. This is an explicit exception to the site-wide bubble/flare
+    system from Session 2 — don't "fix" it back in later.
+  - New pricing tier structure and numbers — the current scheme reads as a
+    placeholder. Decide concrete tier names, prices, and feature lists (3
+    tiers, consistent with a services company: e.g. Starter / Growth /
+    Enterprise, or similarly professional naming) and log the decision below.
+  - **Card treatment — this is the core of the redesign:** only the
+    recommended/middle tier gets `GlassCard`'s glass treatment, scaled
+    slightly larger, elevated with a stronger shadow/glow, and visually
+    "popped out" in front of the other two. The two flanking tiers are
+    intentionally **not** glass — solid/flat cards (opaque surface, simple
+    border, no blur, no flare-on-hover) so the recommended tier reads as
+    obviously different and more premium by contrast, not just visually
+    busier. This is the opposite of every other card grid on the site, where
+    all cards get equal treatment — that's intentional here.
+  - Keep (or rebuild) the monthly/annual toggle from Session 10 and the
+    comparison table, restyled to match.
+- **Decide and log:** final tier names/prices/feature lists.
+- **What changed:**
+- **Repo state:**
+- **Next session starts at:**
+
+---
+
+## Session 22 — Careers Page → Job Board Feed Redesign
+
+- **Status:** NOT STARTED
+- **Scope:** Restructure `/careers` from a static "grid of role cards" into
+  something that feels like a real job board feed (LinkedIn Jobs / similar
+  in spirit, not a literal clone):
+  - Each role renders as a feed-style row/card: small company logo/mark
+    placeholder, role title as the primary click target, department ·
+    location · type as metadata, a short description, and a clear
+    "Apply now" action — visually distinct from a generic "read more" link.
+  - Add feed-appropriate chrome even if not fully functional: a search/filter
+    bar at the top (department/location filter — can be non-functional
+    UI-only if wiring real filtering isn't in scope, but say so explicitly
+    in "What changed" if so), a posted-date or "Actively hiring" style
+    badge per role, and a save/bookmark icon per listing (icon-only,
+    doesn't need working persistence).
+  - Keep the culture/values content from Session 11, but it should support
+    the job-feed experience rather than compete with it for attention —
+    likely a compact intro banner or sidebar rather than the page's main
+    focus the way it is now.
+- **What changed:**
+- **Repo state:**
+- **Next session starts at:**
+
+---
+
+## Session 23 — Blog Full Revamp
+
+- **Status:** NOT STARTED
+- **Scope:** Bring `/blog` and `/blog/[slug]` up to the same premium
+  standard.
+  - Index: give the most recent post a larger "featured" treatment (bigger
+    card, maybe a short excerpt preview) above a standard grid for the rest,
+    rather than every post in a uniform grid. Improve `BlogCard` visually —
+    stronger tag styling, clearer date/reading-time treatment, hover
+    micro-interaction consistent with the rest of the revamped card system.
+  - Detail page: revisit the `.prose` typography treatment from Session 12
+    for a more editorial, premium feel (pull quote styling, better spacing
+    rhythm) and add a scroll-reveal on the header block.
+- **What changed:**
+- **Repo state:**
+- **Next session starts at:**
+
+---
+
+## Session 24 — Phase 2 Close-Out: Cross-Site Consistency Pass
+
+- **Status:** NOT STARTED
+- **Scope:** Final session of Phase 2. Full-site review to make sure the
+  revamp reads as one coherent premium design system rather than nine
+  independently-revamped sections:
+  - Walk every page (including ones not explicitly touched in Sessions
+    16–23 — Home sections not covered above, About, Case Studies, Contact)
+    and confirm hover states, spacing, type scale, and motion timing feel
+    consistent with each other.
+  - Re-run `npx tsc --noEmit`, `npx eslint .`, `npm run build` — same
+    verification bar as every prior session.
+  - Re-check `prefers-reduced-motion` compliance across every new Framer
+    Motion animation added in this phase — it's easy for a later session to
+    add motion and forget the reduced-motion fallback that earlier sessions
+    were careful about.
+  - Re-check dark/light mode on every revamped component — glass/flat
+    contrast choices (Session 21's pricing cards especially) need to look
+    intentional in both modes, not just the one it was designed in.
+- **What changed:**
+- **Repo state:**
+- **Next session starts at:** None — Phase 2 complete.
+
+---
+
 ## Decision Log
 
 (Sessions append one line here whenever the scope above tells them to "decide and
