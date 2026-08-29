@@ -4,7 +4,8 @@ import Link from "next/link";
 import { ArrowUpRight, Calendar, Clock, Sparkles } from "lucide-react";
 import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { GlassCard } from "@/components/glass-card";
-import { formatPostDate, type BlogPostMeta } from "@/lib/blog";
+import type { BlogPostMeta } from "@/lib/blog";
+import { formatPostDate } from "@/lib/format";
 
 interface BlogCardProps {
   post: BlogPostMeta;

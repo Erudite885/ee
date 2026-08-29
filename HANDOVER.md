@@ -1638,6 +1638,73 @@ present (check `package.json` first — do not double-install).
 
 ---
 
+## Session 25 — Production Build Fix: `node:fs` Leaking Into Client Bundle
+
+- **Status:** DONE
+- **Scope:** Out-of-band bugfix session, not part of the original 15-session
+  plan. The user's Vercel deployment of Session 23's patch failed at build
+  time (Turbopack production build, not the sandbox's dev-style build) with:
+  ```
+  FATAL: An unexpected Turbopack error occurred:
+  Failed to write app endpoint /blog/page
+  Caused by:
+  - the chunking context (unknown) does not support external modules (request: node:fs)
+  ```
+- **Root cause:** `lib/blog.ts` does `import fs from "node:fs"` /
+  `import path from "node:path"` at module scope to read local MDX files —
+  correct and necessary for a Server-Component-only data module. Session 23
+  made `components/blog-card.tsx` a `"use client"` component (needed for
+  its new Framer Motion hover-lift) but left it importing
+  `formatPostDate` — a plain **value** import — from `@/lib/blog`. Importing
+  any value from a module pulls the *entire* module into whichever bundle
+  imports it; for a Client Component that means `node:fs` gets dragged into
+  the browser bundle, which Turbopack's production build correctly refuses
+  to do (Next's local/dev build path tolerated it, which is why this wasn't
+  caught before shipping).
+  - **Why the sandbox never caught this:** every prior session's `npm run
+    build` verification in this sandbox dies during `app/layout.tsx`'s
+    `next/font/google` fetch (no network route to
+    `fonts.googleapis.com` here) — before Turbopack ever gets far enough
+    into the module graph to compile `/blog/page` and hit this error.
+    Vercel has normal internet access, sails past the font step, and hits
+    the real bug immediately after. **This is a real gap in this sandbox's
+    verification coverage for anything reachable only through pages later
+    in the build graph than the font import** — worth keeping in mind for
+    future sessions: a clean `tsc`/`eslint`/sandbox-`build` is not proof the
+    production build will succeed past the font-fetch point.
+- **What changed:**
+  - `lib/format.ts` — new file. `formatPostDate` moved here verbatim; it has
+    no filesystem dependency of its own, so it's client-safe on its own.
+  - `lib/blog.ts` — `formatPostDate` removed (no longer exported from here).
+    Added a comment on the file's existing "server-only" rationale
+    explaining what broke and where the fs-free helper now lives, so a
+    future session doesn't reintroduce the same mistake by adding another
+    fs-free helper to this file for a Client Component to import.
+  - `components/blog-card.tsx` — now imports `formatPostDate` from
+    `@/lib/format` and only the `BlogPostMeta` **type** (erased at compile
+    time, so still safe) from `@/lib/blog`.
+  - `app/blog/[slug]/page.tsx` — a Server Component, so it was never
+    actually broken, but updated to import `formatPostDate` from
+    `@/lib/format` too, for consistency (one canonical source for the
+    helper, not "server pages use the blog.ts copy, client components use
+    the format.ts copy").
+  - Audited every other `"use client"` component's `@/lib/*` imports for
+    the same pattern (importing a value from a module that does
+    `node:fs`/`node:path` at module scope) — `lib/blog.ts` was the only
+    offender; `lib/case-studies.ts`, `lib/careers.ts`, `lib/utils.ts`,
+    `lib/validation.ts`, `lib/use-hover-flare.ts`, `lib/use-count-up.ts` are
+    all plain data/logic with no Node built-ins, confirmed clean.
+  - Verified: `npx tsc --noEmit` — 0 errors. `npx eslint .` — 0 errors.
+    `npm run build` — reaches the same font-fetch wall as every prior
+    session with no error before it (i.e. no regression), which per the
+    root-cause note above is the most this sandbox can confirm; the actual
+    fix can only be fully confirmed by the next Vercel deploy.
+- **Repo state:** `lib/blog.ts`, `components/blog-card.tsx`,
+  `app/blog/[slug]/page.tsx` modified; `lib/format.ts` added.
+- **Next session starts at:** N/A — Phase 2 complete, this was a bugfix.
+
+---
+
 ## Decision Log
 
 (Sessions append one line here whenever the scope above tells them to "decide and

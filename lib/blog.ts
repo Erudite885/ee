@@ -25,9 +25,16 @@ export interface BlogPost extends BlogPostMeta {
  * with frontmatter (title, excerpt, date, author, tags). Slug is derived
  * from the filename, so filenames double as the [slug] route param.
  *
- * Reads the filesystem directly (fs/path, no bundler magic) — fine here
- * because this only ever runs in Server Components / generateStaticParams,
- * never in a Client Component.
+ * Reads the filesystem directly (fs/path, no bundler magic) — fine as long
+ * as every export here only ever runs in Server Components /
+ * generateStaticParams, never in a Client Component. Session 25: this
+ * broke in a production (Turbopack) build because `formatPostDate` used to
+ * live in this file with no fs dependency of its own, and a Client
+ * Component imported just that one function — but importing *any* value
+ * from this module pulls the whole module, `node:fs` included, into the
+ * client bundle. `formatPostDate` now lives in `lib/format.ts` instead.
+ * Don't add another fs-free helper here for a Client Component to import —
+ * put it in `lib/format.ts` (or a similar fs-free module) instead.
  */
 function getSlugs(): string[] {
   if (!fs.existsSync(BLOG_DIR)) return [];
@@ -73,12 +80,4 @@ export function getPost(slug: string): BlogPost | undefined {
 
 export function getAllSlugs(): string[] {
   return getSlugs();
-}
-
-export function formatPostDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
 }

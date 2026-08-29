@@ -5,7 +5,8 @@ import { ArrowLeft } from "lucide-react";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { PageHeader } from "@/components/page-header";
 import { ScrollReveal } from "@/components/scroll-reveal";
-import { getAllSlugs, getPost, formatPostDate } from "@/lib/blog";
+import { getAllSlugs, getPost } from "@/lib/blog";
+import { formatPostDate } from "@/lib/format";
 
 export function generateStaticParams() {
   return getAllSlugs().map((slug) => ({ slug }));
