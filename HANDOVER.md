@@ -1817,6 +1817,70 @@ present (check `package.json` first — do not double-install).
 
 ---
 
+## Session 27 — Production Bug Fix: Contact Form 502 (SMTP Misconfiguration)
+
+- **Status:** DONE
+- **Scope:** Out-of-band bugfix. User reported `POST /api/contact` returning
+  `502` in production (Vercel function trace: 415ms execution, "No outgoing
+  requests" under External APIs, routed to `iad1`).
+- **Root cause:** `app/api/contact/route.ts` sends mail via `nodemailer`
+  over SMTP using `SMTP_HOST`/`SMTP_USER`/`SMTP_PASSWORD`/etc. read from
+  `process.env`. Per Session 14's handover note, no SMTP credentials have
+  ever existed in this sandbox, and there is no confirmation they were ever
+  set in the Vercel project's environment variables either. If they're
+  unset in production, `nodemailer.createTransport(...).sendMail(...)`
+  fails deep inside its own connection/auth logic, the route's `catch`
+  block fires, and it returns exactly `502` — matching the report. This
+  also explains "No outgoing requests" in the trace: SMTP is a raw socket
+  connection, not `fetch`, so Vercel's network panel doesn't surface it
+  either way.
+- **User decision:** given the choice between switching to a `mailto:`
+  link, fixing the SMTP env vars, or switching providers to Resend, user
+  chose to **keep the SMTP form and fix the env vars** — this is an
+  operator action in the Vercel dashboard (Settings → Environment
+  Variables → set `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`,
+  `SMTP_PASSWORD`, optionally `SMTP_FROM`/`CONTACT_TO_EMAIL` per
+  `.env.example`, then redeploy). No code change can perform that step;
+  nothing in this repo's history or this sandbox has ever had real SMTP
+  credentials to test against.
+- **What changed (`app/api/contact/route.ts` only):** added
+  `missingSmtpEnvVars()`, checked immediately before the existing
+  `try { getTransporter() ... }` block. If `SMTP_HOST`, `SMTP_USER`, or
+  `SMTP_PASSWORD` is unset, the route now short-circuits with a `500` and
+  a `console.error` reading `"Contact form misconfigured: missing env
+  var(s) ..."` — **before** ever touching nodemailer. This does not fix
+  the underlying missing-credentials problem (only setting real env vars
+  in Vercel does that), but it means the *next* time this happens — env
+  vars unset, rotated, or typo'd — the function logs say exactly that,
+  distinguishable from a genuine SMTP-provider outage (which still returns
+  `502` via the pre-existing `catch` block, unchanged). Previously both
+  cases were indistinguishable generic `502`s in the logs.
+- **Verified:** `npm install` (fresh sandbox, `node_modules` wasn't
+  present from clone). `npx tsc --noEmit` — only pre-existing
+  `PageProps`/`LayoutProps` errors in `app/blog/[slug]/page.tsx` and
+  `app/layout.tsx`, which come from Next.js's generated route types
+  (`.next/types`, only populated by a build) and are unrelated to this
+  change — nothing referencing `route.ts`. `npx eslint .` — 0 errors.
+  `npm run build` — same known sandbox font-fetch wall as every prior
+  session (no egress to Google Fonts here), no new error before it.
+  **This sandbox still cannot send a real test email** — that can only be
+  confirmed once real SMTP credentials are set in Vercel and the form is
+  submitted on the live deployment.
+- **Repo state:** `app/api/contact/route.ts` modified. No other files
+  changed.
+- **Next session starts at:** N/A — bugfix. If the form still fails after
+  the user sets SMTP env vars in Vercel and redeploys, the next session
+  should ask for the *new* Vercel function log output first — with this
+  session's change in place, that log will now say either "misconfigured:
+  missing env var(s) ..." (env vars still not visible to the function,
+  e.g. wrong environment scope in Vercel, or added but not redeployed) or
+  the underlying nodemailer error via `console.error("Contact form email
+  send failed:", err)` (real provider-side issue: wrong host/port, auth
+  rejected, etc.) — either way, no more re-deriving this from source
+  alone a second time.
+
+---
+
 ## Decision Log
 
 (Sessions append one line here whenever the scope above tells them to "decide and
