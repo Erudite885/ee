@@ -1866,6 +1866,23 @@ present (check `package.json` first — do not double-install).
   **This sandbox still cannot send a real test email** — that can only be
   confirmed once real SMTP credentials are set in Vercel and the form is
   submitted on the live deployment.
+- **Addendum (same session):** user asked what a visitor actually sees at
+  `/contact` (walked through `components/contact-form.tsx`: form → inline
+  client validation → submit → in-page success card or inline error text,
+  no email ever went to the visitor). User then asked to add a visitor
+  confirmation email. Added a second `transporter.sendMail(...)` call in
+  `app/api/contact/route.ts`, sent to the visitor's own `email` after the
+  notification-to-owner send succeeds, subject "We've received your
+  message," echoing their submitted message back for their records.
+  Deliberately wrapped in its own inner `try/catch` that only
+  `console.error`s and does not rethrow: by the time this second send is
+  attempted, the primary notification (the one that actually delivers the
+  lead) has already succeeded, so a problem with the visitor's address
+  (typo, mailbox full, etc.) must not turn an already-successful
+  submission into a `502` for the visitor. `SMTP_FROM` here reuses the
+  same env var as the owner notification (defaults to `"Edges
+  Enterprise" <SMTP_USER>` if unset) — both emails send from the same
+  configured identity, no new env var needed.
 - **Repo state:** `app/api/contact/route.ts` modified. No other files
   changed.
 - **Next session starts at:** N/A — bugfix. If the form still fails after
