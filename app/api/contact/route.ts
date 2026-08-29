@@ -133,15 +133,10 @@ export async function POST(req: NextRequest) {
           `Hi ${name},`,
           "",
           "Thanks for reaching out to Edges Enterprise — we've received your message and will reply within one business day.",
-          "",
-          "For your records, here's what you sent:",
-          message,
         ].join("\n"),
         html: `
           <p>Hi ${name},</p>
           <p>Thanks for reaching out to Edges Enterprise — we've received your message and will reply within one business day.</p>
-          <p>For your records, here's what you sent:</p>
-          <p>${message.replace(/\n/g, "<br />")}</p>
         `,
       });
     } catch (err) {
