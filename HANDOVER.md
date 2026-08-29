@@ -21,30 +21,64 @@ this file wins.
    - Fill in your entry's "What changed" / "Repo state" / "Next session starts at".
    - Set your entry's status to `DONE`.
    - Deliver only `session-N.patch` — no inline code, no extra files.
+   - Alongside the patch, give the apply instructions from the "User
+     Environment" section below in full — **both** the laptop block and the
+     phone block, every time, regardless of which device the current
+     conversation seems to be on. Never give just one.
 
 ---
 
 ## User Environment (applies to every session — patch delivery)
 
-- **Repo path (local machine):**
+- **Repo path (laptop, PowerShell):**
   `C:\Users\USER\Desktop\projects\edges_smm_logs_growth\eee`
-- **Downloads path (where patch files land when downloaded):**
+- **Downloads path (laptop, where patch files land when downloaded):**
   `C:\Users\USER\Downloads`
-- Every `.patch` file this project produces is downloaded into the Downloads path
-  above, **not** the repo path. It must be copied into the repo directory before
-  `git am` will work. The user runs these exact commands in PowerShell for every
-  session's patch (replace `session-N.patch` with the actual filename, e.g.
+- **Repo path (phone, Termux):** `~/ee`
+- **Downloads path (phone, where patch files land when downloaded):**
+  `~/storage/downloads` (run `termux-setup-storage` once if this doesn't
+  exist yet; falls back to `/sdcard/Download` on some devices)
+- The user works from **either** machine session to session — every set of
+  apply instructions from here on must give **both** a laptop command block
+  and a phone command block, not just one. Don't guess which device the
+  user is on; give both, labeled.
+- Every `.patch` file this project produces is downloaded into the
+  Downloads path above, **not** the repo path, on both devices. On the
+  laptop it must be copied into the repo directory before `git am` will
+  work. On the phone, `git am` can be pointed straight at the Downloads
+  path — no copy needed, since Termux can run `git am` against any
+  readable path directly.
+- **Laptop (PowerShell)** — run these exact commands for every session's
+  patch (replace `session-N.patch` with the actual filename, e.g.
   `session-1.patch`):
 
   ```powershell
   Copy-Item "C:\Users\USER\Downloads\session-N.patch" -Destination "C:\Users\USER\Desktop\projects\edges_smm_logs_growth\eee\"
   cd "C:\Users\USER\Desktop\projects\edges_smm_logs_growth\eee"
   git am session-N.patch
+  git push origin main
   ```
 
-  Do not shorten, alter, or reorder these three lines, and do not substitute
-  `git apply` for `git am` — `git am` is required so the commit (with message and
-  author) is preserved on the user's machine.
+- **Phone (Termux)** — run this exact command for every session's patch
+  (replace `session-N.patch` with the actual filename), from inside `~/ee`:
+
+  ```bash
+  git am ~/storage/downloads/session-N.patch && git push origin main
+  ```
+
+  If `~/storage/downloads` doesn't resolve, use `/sdcard/Download` instead.
+  If `git am` fails partway through on either device, `git am --abort`
+  resets cleanly before retrying — don't leave a half-applied patch and
+  move on to writing new code on top of it.
+
+  Do not shorten, alter, or reorder the laptop's three lines, and do not
+  substitute `git apply` for `git am` on either device — `git am` is
+  required so the commit (with message and author) is preserved. The
+  `git push origin main` step is required on **both** devices — Vercel
+  deploys off `origin/main`, so an applied-but-unpushed patch has no effect
+  on the live site. (Added to this file in Session 25 after a patch was
+  applied locally on the phone but not pushed, leaving Vercel building
+  against a stale commit.)
 
 ## Project Reference (read once, applies to every session)
 
