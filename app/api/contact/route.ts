@@ -120,6 +120,34 @@ export async function POST(req: NextRequest) {
       `,
     });
 
+    // Best-effort — the submission has already succeeded at this point (the
+    // notification above is what actually gets you the lead). A failure
+    // here (e.g. visitor mistyped their address) shouldn't turn a
+    // successful submission into an error response.
+    try {
+      await transporter.sendMail({
+        from: process.env.SMTP_FROM ?? `"Edges Enterprise" <${process.env.SMTP_USER}>`,
+        to: email,
+        subject: "We've received your message",
+        text: [
+          `Hi ${name},`,
+          "",
+          "Thanks for reaching out to Edges Enterprise — we've received your message and will reply within one business day.",
+          "",
+          "For your records, here's what you sent:",
+          message,
+        ].join("\n"),
+        html: `
+          <p>Hi ${name},</p>
+          <p>Thanks for reaching out to Edges Enterprise — we've received your message and will reply within one business day.</p>
+          <p>For your records, here's what you sent:</p>
+          <p>${message.replace(/\n/g, "<br />")}</p>
+        `,
+      });
+    } catch (err) {
+      console.error("Contact form visitor confirmation email failed:", err);
+    }
+
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("Contact form email send failed:", err);
