@@ -20,11 +20,11 @@ export async function generateMetadata({
   const study = getCaseStudy(slug);
 
   if (!study) {
-    return { title: "Case Study | Company Name" };
+    return { title: "Case Study | Edges Enterprise" };
   }
 
   return {
-    title: `${study.client} | Case Studies | Company Name`,
+    title: `${study.client} | Case Studies | Edges Enterprise`,
     description: study.summary,
   };
 }

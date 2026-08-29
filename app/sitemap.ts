@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { getAllSlugs as getBlogSlugs } from "@/lib/blog";
 import { CASE_STUDIES } from "@/lib/case-studies";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.company.com";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.edgesenterprise.com";
 
 const STATIC_ROUTES = [
   "",

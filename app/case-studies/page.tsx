@@ -5,7 +5,7 @@ import { CaseStudyCard } from "@/components/case-study-card";
 import { CASE_STUDIES } from "@/lib/case-studies";
 
 export const metadata: Metadata = {
-  title: "Case Studies | Company Name",
+  title: "Case Studies | Edges Enterprise",
   description:
     "Real engagements, real numbers — how we've migrated infrastructure, shipped compliance, and rebuilt data platforms for our clients.",
 };

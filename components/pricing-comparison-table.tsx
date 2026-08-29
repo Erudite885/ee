@@ -60,15 +60,33 @@ function Cell({ value }: { value: CellValue }) {
  * follows the same restraint. The Growth column gets a subtle
  * `bg-accent/5` tint (no blur, no scale) to echo the popped-out middle
  * card above without reintroducing glass or motion here.
+ *
+ * Session 28: fixed mobile responsiveness. The table already had
+ * `overflow-x-auto` + `min-w-[640px]`, so it technically scrolled — but on
+ * a narrow viewport that let the row-label column ("Engineers",
+ * "Architecture review cadence", etc.) scroll away along with everything
+ * else. Swipe right to see the Enterprise column and you'd lose track of
+ * which row you were even looking at. Fix: the label column (both the
+ * header corner cell and each row's `<th scope="row">`) is now
+ * `sticky left-0` with an opaque `var(--background)` fill and a fixed
+ * width, so it stays pinned in view while the tier columns scroll
+ * underneath it. A `z-index` ladder (label column above body cells, header
+ * row above body rows) keeps the sticky corner cell correctly on top where
+ * the sticky column and the header row overlap. A subtle gradient fade on
+ * the trailing edge hints that the table scrolls, since a plain cut-off
+ * edge otherwise gives no visual cue there's more to the right.
  */
 export function PricingComparisonTable() {
   return (
-    <div className="overflow-hidden rounded-2xl border border-[var(--glass-border)]">
+    <div className="relative overflow-hidden rounded-2xl border border-[var(--glass-border)]">
       <div className="overflow-x-auto">
         <table className="w-full min-w-[640px] border-collapse text-left">
           <thead>
-            <tr className="border-b border-[var(--glass-border)]">
-              <th scope="col" className="p-5 text-sm font-medium text-muted">
+            <tr className="relative z-20 border-b border-[var(--glass-border)]">
+              <th
+                scope="col"
+                className="sticky left-0 z-30 w-[140px] bg-[var(--background)] p-5 text-sm font-medium text-muted sm:w-[220px]"
+              >
                 Compare plans
               </th>
               {TIER_NAMES.map((name) => (
@@ -93,7 +111,7 @@ export function PricingComparisonTable() {
               >
                 <th
                   scope="row"
-                  className="p-5 text-sm font-normal text-muted"
+                  className="sticky left-0 z-10 w-[140px] bg-[var(--background)] p-5 text-sm font-normal text-muted sm:w-[220px]"
                 >
                   {row.label}
                 </th>
@@ -113,6 +131,10 @@ export function PricingComparisonTable() {
           </tbody>
         </table>
       </div>
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-[var(--background)] to-transparent"
+      />
     </div>
   );
 }

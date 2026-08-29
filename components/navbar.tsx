@@ -40,7 +40,7 @@ export function Navbar() {
     >
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
         <Link href="/" className="text-lg font-semibold tracking-tight">
-          Company<span className="text-accent">.</span>
+          Edges Enterprise<span className="text-accent">.</span>
         </Link>
 
         {/* Desktop links */}

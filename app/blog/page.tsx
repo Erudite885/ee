@@ -5,7 +5,7 @@ import { BlogCard, FeaturedBlogCard } from "@/components/blog-card";
 import { getAllPosts } from "@/lib/blog";
 
 export const metadata: Metadata = {
-  title: "Blog | Company Name",
+  title: "Blog | Edges Enterprise",
   description:
     "Notes from the engineers and operators building deployment, security, and platform tooling in production.",
 };

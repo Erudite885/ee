@@ -4,7 +4,7 @@ import { ScrollReveal } from "@/components/scroll-reveal";
 import { OpenRoles } from "@/components/open-roles";
 
 export const metadata: Metadata = {
-  title: "Careers | Company Name",
+  title: "Careers | Edges Enterprise",
   description:
     "Join a remote-first team building infrastructure that ambitious software teams rely on. Open roles in engineering, design, security, and customer success.",
 };

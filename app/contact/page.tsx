@@ -5,7 +5,7 @@ import { ContactForm } from "@/components/contact-form";
 import { OfficeInfo } from "@/components/office-info";
 
 export const metadata: Metadata = {
-  title: "Contact | Company Name",
+  title: "Contact | Edges Enterprise",
   description:
     "Tell us what you're trying to build or fix. We reply to every message within one business day.",
 };

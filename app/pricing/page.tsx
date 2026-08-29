@@ -4,7 +4,7 @@ import { ScrollReveal } from "@/components/scroll-reveal";
 import { PricingGrid } from "@/components/pricing-grid";
 
 export const metadata: Metadata = {
-  title: "Pricing | Company Name",
+  title: "Pricing | Edges Enterprise",
   description:
     "Simple, transparent pricing for teams of every size — from a first product build to enterprise-scale engagements.",
 };

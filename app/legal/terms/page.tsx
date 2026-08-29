@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { PageHeader } from "@/components/page-header";
 
 export const metadata: Metadata = {
-  title: "Terms of Service | Company Name",
-  description: "The terms governing your use of Company Name's website and services.",
+  title: "Terms of Service | Edges Enterprise",
+  description: "The terms governing your use of Edges Enterprise's website and services.",
 };
 
 export default function TermsPage() {
@@ -24,15 +24,15 @@ export default function TermsPage() {
 
         <h2>Use of the site</h2>
         <p>
-          This website is provided for informational purposes about Company
-          Name&apos;s products and services. You agree not to use the site in
-          any way that could damage, disable, or impair it.
+          This website is provided for informational purposes about Edges
+          Enterprise&apos;s products and services. You agree not to use the
+          site in any way that could damage, disable, or impair it.
         </p>
 
         <h2>Intellectual property</h2>
         <p>
           All content on this site — including text, graphics, logos, and
-          code — is the property of Company Name unless otherwise stated,
+          code — is the property of Edges Enterprise unless otherwise stated,
           and may not be reproduced without permission.
         </p>
 
@@ -44,7 +44,7 @@ export default function TermsPage() {
 
         <h2>Limitation of liability</h2>
         <p>
-          Company Name is not liable for any damages arising from your use
+          Edges Enterprise is not liable for any damages arising from your use
           of, or inability to use, this website.
         </p>
 
@@ -57,7 +57,7 @@ export default function TermsPage() {
         <h2>Contact</h2>
         <p>
           Questions about these terms can be directed to{" "}
-          <a href="mailto:hello@company.com">hello@company.com</a>.
+          <a href="mailto:contact@edgesenterprise.com">contact@edgesenterprise.com</a>.
         </p>
       </article>
     </main>

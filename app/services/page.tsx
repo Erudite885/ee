@@ -4,7 +4,7 @@ import { ScrollReveal } from "@/components/scroll-reveal";
 import { ServicesGrid } from "@/components/services-grid";
 
 export const metadata: Metadata = {
-  title: "Services | Company Name",
+  title: "Services | Edges Enterprise",
   description:
     "Product engineering, platform & DevOps, cloud migration, security, data, and managed support for ambitious software teams.",
 };

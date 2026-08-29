@@ -14,24 +14,20 @@ const fontMono = JetBrains_Mono({
   subsets: ["latin"],
 });
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.company.com";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.edgesenterprise.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Company Name — Software engineering, platform, and security",
+    default: "Edges Enterprise — Software engineering, platform, and security",
     template: "%s",
   },
   description: "A modern software company.",
   openGraph: {
     type: "website",
-    siteName: "Company Name",
+    siteName: "Edges Enterprise",
     locale: "en_US",
     url: SITE_URL,
-  },
-  twitter: {
-    card: "summary_large_image",
-    site: "@companyname",
   },
   robots: {
     index: true,

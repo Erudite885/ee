@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "nodejs";
-export const alt = "Company Name — Software engineering, platform, and security";
+export const alt = "Edges Enterprise — Software engineering, platform, and security";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -38,7 +38,7 @@ export default function OpengraphImage() {
             marginBottom: 24,
           }}
         >
-          <span>Company</span>
+          <span>Edges Enterprise</span>
           <span style={{ color: "#6366f1" }}>.</span>
         </div>
         <div style={{ fontSize: 56, fontWeight: 700, maxWidth: 900, lineHeight: 1.15 }}>

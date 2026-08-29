@@ -9,8 +9,9 @@ const OFFICES = [
 
 /**
  * Static office/contact info sidebar, sits next to ContactForm on /contact.
- * Reuses hello@company.com — the same placeholder address already used in
- * the footer's email link, kept consistent rather than inventing a second one.
+ * Reuses contact@edgesenterprise.com — the same address already used in
+ * the footer's email link and as the contact form's delivery address, kept
+ * consistent rather than inventing a second one.
  */
 export function OfficeInfo() {
   return (
@@ -21,10 +22,10 @@ export function OfficeInfo() {
         </span>
         <h3 className="mt-4 text-base font-medium">Email us directly</h3>
         <a
-          href="mailto:hello@company.com"
+          href="mailto:contact@edgesenterprise.com"
           className="mt-1 block text-sm text-accent hover:underline"
         >
-          hello@company.com
+          contact@edgesenterprise.com
         </a>
       </div>
 

@@ -33,14 +33,11 @@ const SITEMAP_COLUMNS = [
 const SOCIAL_LINKS = [
   { href: "https://example.com", label: "Website", icon: Globe },
   { href: "https://example.com/community", label: "Community", icon: MessageCircle },
-  { href: "mailto:hello@company.com", label: "Email", icon: Mail },
+  { href: "mailto:contact@edgesenterprise.com", label: "Email", icon: Mail },
 ];
 
 /**
- * Mega-footer: sitemap columns + social links + a newsletter signup UI.
- * The newsletter form is UI only for this session — no submit handler wired
- * up yet. Whichever session ends up owning a real newsletter backend should
- * wire onSubmit here rather than building a second form component.
+ * Mega-footer: sitemap columns + social links.
  *
  * Session 19: was already using --glass-bg/--glass-border + a blur filter
  * (built correctly back in Session 3) — confirmed it already reads as one
@@ -48,6 +45,13 @@ const SOCIAL_LINKS = [
  * swapping the hardcoded `backdrop-blur-xl` utility for the same
  * `--blur-glass` design token the navbar now explicitly references, so
  * both pieces of chrome stay in lockstep if that token's value ever changes.
+ *
+ * Session 28: removed the newsletter signup column (no backend ever
+ * existed for it — Session 19's comment above already flagged it as
+ * UI-only). The remaining grid — logo block (col-span-2) + 3 sitemap
+ * columns (1 each) — totals exactly 5, matching `md:grid-cols-5` below,
+ * so no column-count change was needed once the newsletter block was
+ * removed.
  */
 export function Footer() {
   return (
@@ -61,7 +65,7 @@ export function Footer() {
         <div className="grid grid-cols-2 gap-10 md:grid-cols-5">
           <div className="col-span-2">
             <Link href="/" className="text-lg font-semibold tracking-tight">
-              Company<span className="text-accent">.</span>
+              Edges Enterprise<span className="text-accent">.</span>
             </Link>
             <p className="mt-3 max-w-xs text-sm text-muted">
               Building modern software for teams that move fast.
@@ -101,33 +105,10 @@ export function Footer() {
               </ul>
             </div>
           ))}
-
-          <div className="col-span-2 md:col-span-1">
-            <h3 className="font-mono text-xs uppercase tracking-widest text-muted">
-              Newsletter
-            </h3>
-            <p className="mt-4 text-sm text-muted">
-              Product updates, no spam.
-            </p>
-            <form className="mt-4 flex gap-2" onSubmit={(e) => e.preventDefault()}>
-              <input
-                type="email"
-                required
-                placeholder="you@company.com"
-                className="w-full rounded-full border border-[var(--glass-border)] bg-transparent px-4 py-2 text-sm outline-none placeholder:text-muted focus:border-accent"
-              />
-              <button
-                type="submit"
-                className="shrink-0 rounded-full bg-accent px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
-              >
-                Join
-              </button>
-            </form>
-          </div>
         </div>
 
         <div className="mt-12 border-t border-[var(--glass-border)] pt-6 text-xs text-muted">
-          © {new Date().getFullYear()} Company. All rights reserved.
+          © {new Date().getFullYear()} Edges Enterprise. All rights reserved.
         </div>
       </div>
     </footer>

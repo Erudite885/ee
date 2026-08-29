@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { PageHeader } from "@/components/page-header";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | Company Name",
-  description: "How Company Name collects, uses, and protects your data.",
+  title: "Privacy Policy | Edges Enterprise",
+  description: "How Edges Enterprise collects, uses, and protects your data.",
 };
 
 export default function PrivacyPage() {
@@ -42,7 +42,7 @@ export default function PrivacyPage() {
         <p>
           You may request access to, correction of, or deletion of any
           personal data we hold about you by emailing{" "}
-          <a href="mailto:hello@company.com">hello@company.com</a>.
+          <a href="mailto:contact@edgesenterprise.com">contact@edgesenterprise.com</a>.
         </p>
 
         <h2>Cookies</h2>
@@ -54,7 +54,7 @@ export default function PrivacyPage() {
         <h2>Contact</h2>
         <p>
           Questions about this policy can be directed to{" "}
-          <a href="mailto:hello@company.com">hello@company.com</a>.
+          <a href="mailto:contact@edgesenterprise.com">contact@edgesenterprise.com</a>.
         </p>
       </article>
     </main>

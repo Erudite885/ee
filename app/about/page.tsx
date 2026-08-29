@@ -5,7 +5,7 @@ import { Timeline } from "@/components/timeline";
 import { TeamGrid } from "@/components/team-grid";
 
 export const metadata: Metadata = {
-  title: "About | Company Name",
+  title: "About | Edges Enterprise",
   description: "Our story, mission, and the team building the platform.",
 };
 

@@ -19,7 +19,7 @@ export async function generateMetadata({
   const post = getPost(slug);
   if (!post) return { title: "Post not found" };
   return {
-    title: `${post.title} | Blog | Company Name`,
+    title: `${post.title} | Blog | Edges Enterprise`,
     description: post.excerpt,
   };
 }
