@@ -1556,7 +1556,7 @@ present (check `package.json` first — do not double-install).
 
 ## Session 24 — Phase 2 Close-Out: Cross-Site Consistency Pass
 
-- **Status:** NOT STARTED
+- **Status:** DONE
 - **Scope:** Final session of Phase 2. Full-site review to make sure the
   revamp reads as one coherent premium design system rather than nine
   independently-revamped sections:
@@ -1574,7 +1574,66 @@ present (check `package.json` first — do not double-install).
     contrast choices (Session 21's pricing cards especially) need to look
     intentional in both modes, not just the one it was designed in.
 - **What changed:**
-- **Repo state:**
+  - Full-site audit against the Sessions 16–23 standard turned up two real
+    inconsistencies, both fixed:
+    - `components/case-study-card.tsx` and `components/team-grid.tsx` were
+      the last two card grids still on the pre-revamp plain `GlassCard`
+      CSS-only scale hover (Case Studies index, About page's Leadership
+      grid) while every other grid on the site (FeatureGrid, ServicesGrid,
+      BlogCard, OpenRoles' row treatment) had been brought up to the
+      Framer Motion `whileHover` lift (`cardLift`, same `{ y: -6,
+      transition: { duration: 0.25, ease: "easeOut" } }` shape used since
+      Session 17) + accent border/glow standard. Both rewritten to match:
+      `motion.div` wrapper with the shared `cardLift` variants,
+      `GlassCard`'s `hoverScale` disabled so it doesn't fight the lift, same
+      `hover:border-accent hover:shadow-[0_20px_60px_-15px_var(--accent)]`
+      glow. `CaseStudyCard` is now a client component (`"use client"`) since
+      Framer Motion requires it — the stretched-link click-through pattern
+      is unchanged. Both gate the hover variants behind `useReducedMotion()`
+      the same way every other animated card on the site does.
+    - Every interior page's `<PageHeader>` was static except
+      `/blog/[slug]`, which Session 23 wrapped in `<ScrollReveal>` — so one
+      page had a fade/rise entrance on its header and seven didn't (About,
+      Services, Pricing, Careers, Blog index, Case Studies, Contact). Wrapped
+      all seven in `<ScrollReveal>` (the generic wrapper Session 23 built
+      specifically to be reused elsewhere) so every interior page now enters
+      the same way. No changes to `PageHeader` itself — it stays a plain
+      Server Component, per the reasoning already documented in
+      `components/scroll-reveal.tsx`.
+  - Reviewed but left unchanged, with reasoning confirmed still valid:
+    - `components/pricing-card.tsx` — the non-highlighted tiers' flat,
+      non-glass surface is a documented **intentional** contrast choice from
+      Session 21 (the highlighted tier is glass + accent glow, the other
+      tiers are deliberately flat so the recommended tier reads as
+      obviously different) — confirmed this still reads correctly in both
+      light and dark via the same `var(--background)` / `var(--glass-border)`
+      tokens every other surface uses, not a hardcoded color. No change
+      needed; this is the one place on the site that's supposed to look
+      different from the rest, by design.
+    - `components/hero.tsx`, `components/cta-section.tsx`,
+      `components/testimonials.tsx`, `components/feature-grid.tsx`,
+      `components/services-grid.tsx`, `components/stats-band.tsx`,
+      `components/open-roles.tsx`, `components/blog-card.tsx` — all already
+      gate their Framer Motion variants behind `useReducedMotion()` and use
+      only CSS-variable-backed colors, consistent with each other and with
+      the two components fixed above.
+    - `app/globals.css`'s `prefers-reduced-motion` media query already
+      collapses all animation/transition durations sitewide as a backstop,
+      independent of each component's own `useReducedMotion()` check —
+      confirmed still in place and unchanged.
+  - Verified clean: `npx tsc --noEmit` — 0 errors (two pre-existing,
+    unrelated errors for `PageProps`/`LayoutProps` in `app/blog/[slug]` and
+    `app/layout.tsx` disappear once `.next/types` exists, i.e. after
+    `next build` has run at least once in the sandbox — not something this
+    session's diff touches or introduces). `npx eslint .` — 0 errors.
+    `npm run build` — same known sandbox font-fetch stopping point
+    (`fonts.googleapis.com` unreachable from the sandbox) as every prior
+    session, nothing new before it.
+- **Repo state:** `app/about/page.tsx`, `app/services/page.tsx`,
+  `app/pricing/page.tsx`, `app/careers/page.tsx`, `app/blog/page.tsx`,
+  `app/case-studies/page.tsx`, `app/contact/page.tsx`,
+  `components/case-study-card.tsx`, `components/team-grid.tsx` modified.
+  No dependency changes, no new components.
 - **Next session starts at:** None — Phase 2 complete.
 
 ---

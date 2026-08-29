@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/page-header";
+import { ScrollReveal } from "@/components/scroll-reveal";
 import { Timeline } from "@/components/timeline";
 import { TeamGrid } from "@/components/team-grid";
 
@@ -11,11 +12,13 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <main>
-      <PageHeader
-        eyebrow="About us"
-        title="Building the infrastructure ambitious teams run on"
-        description="We started with a simple frustration: shipping software took too long. Everything we build traces back to fixing that."
-      />
+      <ScrollReveal>
+        <PageHeader
+          eyebrow="About us"
+          title="Building the infrastructure ambitious teams run on"
+          description="We started with a simple frustration: shipping software took too long. Everything we build traces back to fixing that."
+        />
+      </ScrollReveal>
 
       <section className="mx-auto max-w-3xl px-6 py-20">
         <h2 className="text-2xl font-semibold tracking-tight">Our mission</h2>

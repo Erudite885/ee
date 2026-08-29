@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/page-header";
+import { ScrollReveal } from "@/components/scroll-reveal";
 import { OpenRoles } from "@/components/open-roles";
 
 export const metadata: Metadata = {
@@ -11,11 +12,13 @@ export const metadata: Metadata = {
 export default function CareersPage() {
   return (
     <main>
-      <PageHeader
-        eyebrow="Careers"
-        title="Build with us"
-        description="We're a remote-first team of engineers, designers, and operators who believe great software shouldn't require great pain to build."
-      />
+      <ScrollReveal>
+        <PageHeader
+          eyebrow="Careers"
+          title="Build with us"
+          description="We're a remote-first team of engineers, designers, and operators who believe great software shouldn't require great pain to build."
+        />
+      </ScrollReveal>
 
       {/* Culture / values — Session 22: condensed from a full section with
           four h3+p blocks into a single compact glass banner of short

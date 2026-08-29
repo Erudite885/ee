@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/page-header";
+import { ScrollReveal } from "@/components/scroll-reveal";
 import { BlogCard, FeaturedBlogCard } from "@/components/blog-card";
 import { getAllPosts } from "@/lib/blog";
 
@@ -15,11 +16,13 @@ export default function BlogPage() {
 
   return (
     <main>
-      <PageHeader
-        eyebrow="Blog"
-        title="Notes from production"
-        description="What we've learned building and operating infrastructure software, written by the people who did the work."
-      />
+      <ScrollReveal>
+        <PageHeader
+          eyebrow="Blog"
+          title="Notes from production"
+          description="What we've learned building and operating infrastructure software, written by the people who did the work."
+        />
+      </ScrollReveal>
 
       <section className="mx-auto max-w-6xl px-6 py-20">
         {featuredPost && (
