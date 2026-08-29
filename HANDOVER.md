@@ -1739,6 +1739,84 @@ present (check `package.json` first — do not double-install).
 
 ---
 
+## Session 26 — Production Bug Fix: Blog/Case-Study Cards Not Clickable
+
+- **Status:** DONE
+- **Scope:** Out-of-band bugfix. User reported that clicking a blog post
+  card on the deployed site did not navigate to the individual post.
+- **Root cause:** `app/globals.css` uses `@import "tailwindcss"` (Tailwind
+  v4), which brings in native CSS cascade layers
+  (`@layer theme, base, components, utilities;`). By spec, any CSS written
+  **outside** a layer is treated as though it's in a final, highest-priority
+  layer that beats every layered rule regardless of selector specificity.
+  This file's custom CSS — `* { border-color: var(--glass-border); }` and
+  `.glass-card > * { position: relative; z-index: 1; }` in particular — was
+  written unlayered, which had two effects, only one of which was visibly
+  reported:
+  1. **The reported bug:** `BlogCard`, `FeaturedBlogCard`, and
+     `CaseStudyCard` (Sessions 9/23/24) all use a "stretched link" pattern —
+     an `absolute inset-0` `<Link>` as the first child, meant to make the
+     whole card clickable. The unlayered `.glass-card > *` rule forced that
+     Link's `position` from `absolute` back to `relative`, collapsing its
+     clickable area down to its own content box (an `sr-only` span) —
+     effectively unclickable across the visible card.
+  2. **A second, latent bug, not reported but fixed as part of the same root
+     cause:** the unlayered `* { border-color: var(--glass-border); }` was
+     silently overriding every `border-accent` / `hover:border-accent`
+     utility site-wide (navbar's Contact button, FeatureGrid, ServicesGrid,
+     BlogCard, CaseStudyCard, TeamGrid, PricingCard's highlighted tier) —
+     the hover lift/shadow motion still worked (unaffected, different
+     properties), but the accent border glow layered on top of it never
+     visually applied. This was never caught because there's no
+     browser-level visual verification in this project's pipeline, only
+     `tsc`/`eslint`/`build`, none of which can catch a CSS cascade-priority
+     bug.
+- **What changed (`app/globals.css` only):**
+  - `* { border-color: var(--glass-border); }`, `:focus-visible`, and
+    `body` moved into `@layer base`.
+  - `.glass-card`, `.glass-card::before`, `.glass-card:hover::before`, and
+    `.glass-card > *` moved into `@layer components`. Tailwind v4's default
+    layer order puts `utilities` after `components`, so this alone restores
+    normal Tailwind behavior: a component's own utility classes
+    (`.absolute`, `.border-accent`, etc.) now correctly out-rank these
+    base/default styles again, as they would in any ordinary Tailwind
+    project.
+  - Added one new rule, `.glass-card > .absolute { z-index: 2; }`, inside
+    the same `@layer components` block. This was necessary *in addition
+    to* the layering fix: `.glass-card > *` also promotes sibling text
+    content (title, tags, paragraph) to `position: relative; z-index: 1` —
+    the same z-index as the now-correctly-`absolute` Link. Positioned
+    siblings sharing one z-index stack in DOM order, and the Link is the
+    *first* child, so the later text siblings would still have painted on
+    top of it and swallowed clicks on exactly the pixels a user is most
+    likely to click (the title, the tags) even after the layering fix
+    alone. The explicit `z-index: 2` makes the Link topmost everywhere on
+    the card regardless of DOM order, which is what the stretched-link
+    pattern actually needs to work reliably.
+  - `.flare-text`, `.marquee-track`, and `.contact-pulse` (and their
+    `@keyframes`) were deliberately left unlayered/unchanged — audited
+    every component that applies them (`hero.tsx`, `logo-strip.tsx`,
+    `navbar.tsx`) and none pairs them with a Tailwind utility class that
+    sets a conflicting property, so there's no demonstrated bug there. Left
+    alone rather than changed speculatively.
+  - Left a standing comment block in `globals.css` (right before
+    `@layer base`) explaining the cascade-layers gotcha, so a future
+    session doesn't reintroduce an unlayered rule here without realizing it
+    will unconditionally beat every Tailwind utility class on the site
+    again.
+- **Verified:** `npx tsc --noEmit` — 0 errors. `npx eslint .` — 0 errors.
+  `npm run build` — same known sandbox font-fetch wall as every prior
+  session, no new error before it. This sandbox cannot render a browser to
+  visually confirm the click now works or that the accent borders now show
+  up — that can only be confirmed once deployed. If either still looks
+  wrong after this patch is live, the next session should actually open the
+  deployed cards in a browser and inspect computed styles/z-index, rather
+  than re-deriving this from source alone a second time.
+- **Repo state:** `app/globals.css` modified. No other files changed.
+- **Next session starts at:** N/A — bugfix, ask the user what's next.
+
+---
+
 ## Decision Log
 
 (Sessions append one line here whenever the scope above tells them to "decide and

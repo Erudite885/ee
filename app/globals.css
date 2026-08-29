@@ -57,24 +57,48 @@
   }
 }
 
-* {
-  border-color: var(--glass-border);
-}
+/* Session 26 note: everything below that touches an element also styled by
+   a Tailwind utility class is deliberately placed inside @layer base or
+   @layer components. @import "tailwindcss" (above) brings in Tailwind v4's
+   native CSS cascade layers (theme, base, components, utilities); any CSS
+   written OUTSIDE a layer is unconditionally the highest-priority layer,
+   regardless of selector specificity, and unconditionally beats every
+   Tailwind utility class site-wide. This file used to have `* { border-color:
+   ... }` and `.glass-card > * { position: relative; z-index: 1; }` sitting
+   unlayered, which meant they silently overrode every `border-accent` /
+   `hover:border-accent` utility site-wide (navbar, FeatureGrid,
+   ServicesGrid, BlogCard, CaseStudyCard, TeamGrid, PricingCard) and turned
+   the stretched-link click target in BlogCard/FeaturedBlogCard/
+   CaseStudyCard from `position: absolute; inset: 0` back into
+   `position: relative` with no explicit size — collapsing its clickable
+   area down to its own content box, which is just an `sr-only` span.
+   That's why clicking a blog/case-study card didn't navigate: the visible
+   card was never the actual click target. Don't add new selectors below
+   this comment without putting them in @layer base or @layer components —
+   an unlayered rule here will beat that component's own Tailwind classes
+   again. */
 
-/* Accessible, on-brand focus indicator. Browser defaults are functional but
-   low-contrast on glass surfaces in dark mode — this guarantees a visible
-   ring using the same accent color as interactive elements, for every
-   focusable element site-wide, not just ones with an explicit focus: class. */
-:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-  border-radius: 4px;
-}
+@layer base {
+  * {
+    border-color: var(--glass-border);
+  }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  /* Accessible, on-brand focus indicator. Browser defaults are functional
+     but low-contrast on glass surfaces in dark mode — this guarantees a
+     visible ring using the same accent color as interactive elements, for
+     every focusable element site-wide, not just ones with an explicit
+     focus: class. */
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -93,34 +117,59 @@ body {
    before any pointer interaction, and on touch devices where the hook never
    fires. Sits behind content (z-index via stacking, GlassCard is
    position: relative + overflow-hidden). */
-.glass-card {
-  --x: 50%;
-  --y: 50%;
-}
+@layer components {
+  .glass-card {
+    --x: 50%;
+    --y: 50%;
+  }
 
-.glass-card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  opacity: 0;
-  transition: opacity 0.3s ease-out;
-  background: radial-gradient(
-    circle at var(--x) var(--y),
-    var(--accent) 0%,
-    transparent 55%
-  );
-  mix-blend-mode: soft-light;
-  pointer-events: none;
-}
+  .glass-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    opacity: 0;
+    transition: opacity 0.3s ease-out;
+    background: radial-gradient(
+      circle at var(--x) var(--y),
+      var(--accent) 0%,
+      transparent 55%
+    );
+    mix-blend-mode: soft-light;
+    pointer-events: none;
+  }
 
-.glass-card:hover::before {
-  opacity: 0.5;
-}
+  .glass-card:hover::before {
+    opacity: 0.5;
+  }
 
-.glass-card > * {
-  position: relative;
-  z-index: 1;
+  /* Keeps real content above the ::before spotlight. Now correctly placed
+     in @layer components — Tailwind v4's own `utilities` layer comes after
+     `components` in its default layer order, so an element that already
+     carries its own `absolute`/`relative` utility class (e.g. BlogCard/
+     CaseStudyCard's stretched `absolute inset-0` Link) keeps that position
+     value; this rule only supplies the default for children that don't set
+     their own. Before this file used cascade layers at all, this rule sat
+     unlayered and unconditionally won regardless of specificity — see the
+     Session 26 note above for what that broke. */
+  .glass-card > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* The stretched-link pattern (BlogCard, FeaturedBlogCard, CaseStudyCard)
+     puts a full-card `absolute inset-0` Link as the FIRST child so the
+     whole card is clickable. Positioned siblings sharing the same z-index
+     stack in DOM order, later on top — so without this, the Link (first
+     child, z-index 1 from the rule above) would paint BEHIND the title/
+     tags/paragraph that come after it in the JSX (also z-index 1), and
+     clicking directly on that visible text — the single most likely place
+     a user clicks — would hit inert text instead of the Link underneath.
+     Bumping the Link's z-index above its siblings makes it the topmost
+     element everywhere on the card, regardless of DOM order. */
+  .glass-card > .absolute {
+    z-index: 2;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
