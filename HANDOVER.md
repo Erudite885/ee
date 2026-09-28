@@ -2098,6 +2098,71 @@ present (check `package.json` first — do not double-install).
 
 ---
 
+## Session 31 — Contact Form Verified Live; Open Items Closed
+
+- **Status:** DONE (docs only — no code changed)
+- **Scope:** record that the production contact form now works end to
+  end, and close out the open items carried forward from Sessions 28-30.
+- **Contact form is live and verified (supersedes Session 14's and
+  Session 27's "never tested against real credentials" notes).** The
+  user set the Gmail SMTP environment variables in Vercel (Production)
+  and redeployed. A live submission returned `200` (function duration
+  ~2.95s, consistent with two real SMTP sends; the original failure was a
+  `502` at ~415ms that never reached the SMTP server). User confirmed
+  both emails arrived: (1) the owner notification, delivered to
+  `contact@edgesenterprise.com`, which forwards to the user's Gmail, and
+  (2) the visitor confirmation, received at the address typed into the
+  form and shown as sent from `contact@edgesenterprise.com`.
+- **Current production email setup (do not re-derive):**
+  - Auth: `SMTP_HOST=smtp.gmail.com`, `SMTP_PORT=587`,
+    `SMTP_SECURE=false`, `SMTP_USER` = the user's real Gmail account,
+    `SMTP_PASSWORD` = a Google **App Password** (2-Step Verification is
+    required for App Passwords; the normal Gmail password will not work).
+  - Sender identity: `SMTP_FROM=Edges Enterprise <contact@edgesenterprise.com>`.
+    This works because `contact@edgesenterprise.com` is verified as a
+    "Send mail as" alias in that Gmail account's settings. `SMTP_USER`
+    stays the real Gmail account; only the `From` header uses the alias.
+  - Delivery: `CONTACT_TO_EMAIL` is intentionally **unset**, so it
+    defaults to `contact@edgesenterprise.com`. That address is a
+    forward-only alias (no mailbox behind it) that forwards to the user's
+    Gmail. The user chose to keep this route rather than sending straight
+    to Gmail.
+  - Gmail SMTP has a daily sending cap (roughly 500 messages for a
+    regular account) — each form submission uses two sends. Fine for a
+    contact form; if traffic ever outgrows it, moving to a
+    transactional provider such as Resend is a config-only change plus
+    new env vars, no route rewrite.
+  - Failure diagnosis: the route logs
+    `Contact form misconfigured: missing env var(s) ...` (HTTP 500) when
+    `SMTP_HOST`/`SMTP_USER`/`SMTP_PASSWORD` is unset or not scoped to the
+    environment or not yet redeployed, `Contact form email send failed:`
+    (HTTP 502) when the provider rejects the owner notification, and
+    `Contact form visitor confirmation email failed:` (still HTTP 200)
+    when only the visitor's confirmation fails. Read the Vercel function
+    log for `/api/contact` first.
+- **Open items from Sessions 28-30 — resolved by the user:**
+  - WhatsApp footer link: verified on a real phone; opens the right chat
+    with the pre-filled message.
+  - Pricing table sticky label column: verified on a real phone; row
+    labels stay pinned while the tier columns scroll.
+  - Footer social links: **no additional profiles wanted for now.** The
+    footer stays at Website, WhatsApp and Email. Do not add LinkedIn, X,
+    Instagram etc. unless the user asks.
+  - `components/contact-form.tsx` `ada@company.com` email placeholder:
+    **deliberately left as is** at the user's instruction. It is
+    format-example text in an input field, not a reference to this site's
+    domain; do not "fix" it in future cleanup passes.
+- **Verified:** live production submission (200, both emails received)
+  as described above. No code, config, or dependency changes this
+  session.
+- **Repo state:** `HANDOVER.md` only.
+- **Next session starts at:** N/A — no queued work. Ask the user what's
+  next. Patch-building rule from Session 28 still applies: build with
+  `git format-patch origin/main..HEAD` after fetching `origin/main`,
+  never a hand-counted `-N`.
+
+---
+
 ## Decision Log
 
 (Sessions append one line here whenever the scope above tells them to "decide and
@@ -2109,3 +2174,12 @@ log" something, so later sessions don't need to dig through commits to find out.
 - Session 17 (Stat Counters): hand-rolled `useCountUp` hook, not a counting
   library — small enough (RAF loop + ease-out cubic) that a dependency
   wasn't justified.
+- Session 27/31 (Contact Form): kept the SMTP contact form (nodemailer over
+  Gmail SMTP) rather than switching to a `mailto:` link or Resend, at the
+  user's choice. Owner notification goes to the forward-only alias
+  `contact@edgesenterprise.com`; visitor gets a short confirmation email
+  that deliberately does not echo their message back.
+- Session 30/31 (Footer): social links limited to Website, WhatsApp and
+  Email by the user's choice; WhatsApp opens a pre-filled message. The
+  `ada@company.com` form placeholder stays as an example, by the user's
+  choice.
