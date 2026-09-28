@@ -39,6 +39,22 @@ function isRateLimited(ip: string): boolean {
   return recent.length > RATE_LIMIT_MAX;
 }
 
+const REQUIRED_SMTP_ENV_VARS = ["SMTP_HOST", "SMTP_USER", "SMTP_PASSWORD"] as const;
+
+/**
+ * Checks that the SMTP env vars this route depends on are actually set,
+ * without ever logging their values. Deliberately separate from
+ * getTransporter()/sendMail() below: nodemailer will happily attempt a
+ * connection with `undefined` host/user/pass and fail deep inside its own
+ * socket/auth logic, which surfaces as the same generic error as a real
+ * outage. Checking up front means a missing-env-var deployment logs
+ * "SMTP is not configured" instead of an opaque connection or auth
+ * stack trace that looks identical to a genuine provider-side failure.
+ */
+function missingSmtpEnvVars(): string[] {
+  return REQUIRED_SMTP_ENV_VARS.filter((key) => !process.env[key]);
+}
+
 function getTransporter() {
   return nodemailer.createTransport({
     host: process.env.SMTP_HOST,
@@ -87,6 +103,21 @@ export async function POST(req: NextRequest) {
   // caught, that just teaches it to adapt.
   if (website || Date.now() - startedAt < MIN_SUBMIT_MS) {
     return NextResponse.json({ ok: true });
+  }
+
+  const missingEnvVars = missingSmtpEnvVars();
+  if (missingEnvVars.length > 0) {
+    // Not a send failure — the transporter was never going to work. Logged
+    // as its own case (500, not 502) so this is unmistakable in Vercel's
+    // function logs vs. a genuine SMTP-provider outage below.
+    console.error(
+      `Contact form misconfigured: missing env var(s) ${missingEnvVars.join(", ")}. ` +
+        "See .env.example for what's required."
+    );
+    return NextResponse.json(
+      { error: "Failed to send message. Please email us directly." },
+      { status: 500 }
+    );
   }
 
   try {
