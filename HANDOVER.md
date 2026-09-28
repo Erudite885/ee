@@ -1885,16 +1885,160 @@ present (check `package.json` first — do not double-install).
   configured identity, no new env var needed.
 - **Repo state:** `app/api/contact/route.ts` modified. No other files
   changed.
-- **Next session starts at:** N/A — bugfix. If the form still fails after
-  the user sets SMTP env vars in Vercel and redeploys, the next session
-  should ask for the *new* Vercel function log output first — with this
-  session's change in place, that log will now say either "misconfigured:
-  missing env var(s) ..." (env vars still not visible to the function,
-  e.g. wrong environment scope in Vercel, or added but not redeployed) or
-  the underlying nodemailer error via `console.error("Contact form email
-  send failed:", err)` (real provider-side issue: wrong host/port, auth
-  rejected, etc.) — either way, no more re-deriving this from source
-  alone a second time.
+- **Second addendum (same session):** user flagged that echoing the
+  visitor's own message back to them in the confirmation email read as
+  unprofessional. Removed the "For your records, here's what you sent"
+  paragraph and the message-content line from both the `text` and `html`
+  bodies of the visitor confirmation email. It now only reads "Hi
+  {name}, ... we've received your message and will reply within one
+  business day." — no message content, no other changes.
+- **Repo state:** `app/api/contact/route.ts` modified. No other files
+  changed.
+- **If the contact form still fails** after the user sets SMTP env vars
+  in Vercel and redeploys: the Vercel function log will say either
+  "misconfigured: missing env var(s) ..." (env vars not visible to the
+  function — wrong environment scope in Vercel, or added but not
+  redeployed) or the underlying nodemailer error via
+  `console.error("Contact form email send failed:", err)` (real
+  provider-side issue: wrong host/port, auth rejected, etc.). Ask for
+  that log output first rather than re-deriving this from source again.
+- **Next session starts at:** Session 28 (below).
+
+---
+
+## Session 28 — Rebrand Copy, Real Domain, Remove Newsletter, Fix Pricing-Table Mobile
+
+- **Status:** DONE
+- **Delivery note (read this first):** two patch-bundle mistakes were
+  found and corrected during this session. (1) The earlier
+  `session-27.patch` was built with `git format-patch -N HEAD`, and the
+  count was off, so it silently omitted the first Session 27 code commit
+  (the `missingSmtpEnvVars` fail-fast check in
+  `app/api/contact/route.ts`) — that check was described in this file but
+  never reached GitHub. It is re-added in this delivery. (2) The first
+  `session-28.patch` omitted the commit that queued this Session 28 entry,
+  so its docs commit failed with `patch does not apply`. **Rule going
+  forward:** build patches with `git format-patch origin/main..HEAD`
+  (everything not yet on GitHub), never a hand-counted `-N`, and fetch
+  `origin/main` first to confirm what has actually landed.
+- **Scope:**
+  1. **Rebrand: "company" -> "Edges Enterprise"** wherever the site
+     refers to itself (navbar/footer wordmark, metadata, page titles, OG
+     image, legal copy).
+  2. **Real domain: placeholder -> `edgesenterprise.com`**, including the
+     placeholder email (`hello@company.com` ->
+     `contact@edgesenterprise.com`). Twitter/X metadata removed entirely
+     per user choice.
+  3. **Remove the newsletter section** (footer only; no backend existed).
+  4. **Fix "Compare plans in detail" mobile responsiveness.** Inspect
+     actual rendered behavior before choosing between horizontal scroll,
+     stacked layout, or cards; don't guess the fix without seeing the
+     actual breakage first.
+- **What changed:**
+  - **Rebrand (task 1):** every "Company"/"Company Name" instance that
+    refers to the site's own brand was changed to "Edges Enterprise" —
+    navbar wordmark (`components/navbar.tsx`), footer wordmark + `©` line
+    (`components/footer.tsx`), OG image alt text + wordmark
+    (`app/opengraph-image.tsx`), root layout title/siteName
+    (`app/layout.tsx`), and the `<title>` metadata on every page
+    (about, blog + `[slug]`, careers, case-studies + `[slug]`, contact,
+    legal/privacy, legal/terms, pricing, services). Legal pages'
+    body copy ("the property of Company Name", "Company Name is not
+    liable", etc., including one instance that was word-wrapped as
+    `Company\nName` across two lines in the source and needed manual
+    handling since it didn't match a single-line search/replace) also
+    updated. **Deliberately left alone** as not brand references:
+    `components/footer.tsx`'s "Company" footer-nav-column heading (a
+    generic About/Careers/Blog section label, not the site's name),
+    `components/contact-form.tsx`'s "Company" field label (the visitor's
+    own employer name), and historical entries elsewhere in this
+    HANDOVER.md (a log of what happened at the time, not current state —
+    not retroactively rewritten).
+  - **Domain (task 2):** `https://www.company.com` →
+    `https://www.edgesenterprise.com` in `app/layout.tsx`, `app/robots.ts`,
+    `app/sitemap.ts` (all three read `NEXT_PUBLIC_SITE_URL` first — this
+    only changes the fallback used when that env var is unset). Removed
+    the `twitter: { site: "@companyname" }` metadata block entirely from
+    `app/layout.tsx` per user's explicit choice, rather than replacing
+    the handle. **Deliberately left alone:**
+    `components/contact-form.tsx`'s `ada@company.com` placeholder text
+    (an example format for the visitor's own work-email field, not a
+    reference to this site's domain) and `components/footer.tsx`'s/
+    `components/office-info.tsx`'s `https://example.com` social links
+    (separate third-party placeholders, out of scope — flagged here for
+    a future session rather than guessed at).
+  - **Placeholder email (task 1/2 overlap):** `hello@company.com` →
+    `contact@edgesenterprise.com` (same address the contact form already
+    delivers to, per Session 27) in `components/footer.tsx`,
+    `components/office-info.tsx`, `app/error.tsx`,
+    `app/legal/privacy/page.tsx`, `app/legal/terms/page.tsx`.
+  - **Newsletter removal (task 3):** deleted the newsletter signup
+    column entirely from `components/footer.tsx` — the only place it
+    existed (confirmed by repo-wide search; Session 19's own comment on
+    that block already flagged it as UI-only with no backend, so there
+    was no API route to clean up). The footer's grid was already exactly
+    balanced without it: logo block (`col-span-2`) + 3 sitemap columns
+    (1 each) = 5, matching the existing `md:grid-cols-5` — no layout
+    class changes needed once the block was removed.
+  - **Pricing table mobile fix (task 4):** confirmed via the rendered
+    dev-server HTML (see Verified below) that the table already had
+    `overflow-x-auto` + `min-w-[640px]` (added in Session 21), so it
+    technically scrolled — but the row-label column ("Engineers",
+    "Architecture review cadence," etc.) scrolled away with everything
+    else, so swiping right to compare the Enterprise column lost all
+    row context. Fixed in `components/pricing-comparison-table.tsx`: the
+    label column (the header corner cell and every row's
+    `<th scope="row">`) is now `sticky left-0` with a fixed width
+    (`w-[140px] sm:w-[220px]`) and an opaque `bg-[var(--background)]`
+    fill, so it stays pinned while the tier columns scroll underneath.
+    Added a small `z-index` ladder (`z-30` corner cell > `z-20` header
+    row > `z-10` body sticky cells > body cells' implicit `z-0`) so the
+    sticky corner cell renders correctly above both the sticky body
+    column and the non-sticky header row where they'd otherwise overlap.
+    Added a `pointer-events-none` gradient fade on the trailing edge
+    (`bg-gradient-to-l from-[var(--background)] to-transparent`) as a
+    visual hint that the table scrolls, since a hard-cut edge alone gives
+    no cue there's more content to the right. Did **not** restructure to
+    a stacked/card-per-plan layout — the sticky-column fix keeps the
+    existing table semantics (`scope="row"`/`scope="col"` still intact
+    for accessibility) and required touching only the one component.
+- **Verified:** `npx eslint .` — 0 errors. `npx tsc --noEmit` — only the
+  same pre-existing `PageProps`/`LayoutProps` generated-route-type errors
+  present since before this session (unrelated, `.next/types` artifacts).
+  `npm run build` — same known sandbox font-fetch wall as every prior
+  session (no egress to Google Fonts here); confirmed no *new* error
+  appears before that wall. **For the pricing table specifically:** since
+  `next/font` only hard-fails on `build` (falls back gracefully in `dev`),
+  ran `npm run dev` and fetched `/pricing`'s actual rendered HTML with
+  `curl` to confirm the sticky-column classes land on the correct
+  elements in the real DOM output (corner `<th>` and every row's
+  `<th scope="row">` both carry `sticky left-0` + matching width/
+  background, header row's `<tr>` carries the higher `z-20`) — couldn't
+  get a pixel screenshot in this sandbox (Playwright's Chromium download
+  is blocked by the network allowlist), so this was verified by
+  DOM/class inspection rather than a visual render. A visual check on a
+  real mobile device/browser after this patch is applied is still
+  worthwhile before considering this fully closed.
+- **Repo state:** 20 files changed — `app/about/page.tsx`,
+  `app/blog/page.tsx`, `app/blog/[slug]/page.tsx`, `app/careers/page.tsx`,
+  `app/case-studies/page.tsx`, `app/case-studies/[slug]/page.tsx`,
+  `app/contact/page.tsx`, `app/error.tsx`, `app/layout.tsx`,
+  `app/legal/privacy/page.tsx`, `app/legal/terms/page.tsx`,
+  `app/opengraph-image.tsx`, `app/pricing/page.tsx`, `app/robots.ts`,
+  `app/services/page.tsx`, `app/sitemap.ts`, `components/footer.tsx`,
+  `components/navbar.tsx`, `components/office-info.tsx`,
+  `components/pricing-comparison-table.tsx`. No new dependencies, no
+  deleted files, no orphaned imports (the newsletter block used only
+  components/icons already imported for other parts of `footer.tsx`, so
+  nothing became unused).
+- **Next session starts at:** open items carried forward, not yet
+  scoped as a numbered session: (1) confirm the pricing table fix on an
+  actual mobile browser/device — this session could only verify via DOM
+  inspection, not a visual render; (2) `components/contact-form.tsx`'s
+  `ada@company.com` example placeholder and the `https://example.com`
+  social links in `components/footer.tsx`/`components/office-info.tsx`
+  were deliberately left as out-of-scope placeholders this session —
+  revisit if/when real social profile URLs exist.
 
 ---
 
