@@ -2042,6 +2042,36 @@ present (check `package.json` first — do not double-install).
 
 ---
 
+## Session 29 — Real Footer Social Links
+
+- **Status:** DONE
+- **Scope:** replace the two `example.com` placeholder social links left
+  over from Session 28 (which had flagged them as out of scope until real
+  URLs existed).
+- **What changed (`components/footer.tsx` only):** the "Website" link now
+  points to `https://www.edgesenterprise.com` (same value as the
+  `SITE_URL` fallback in `app/layout.tsx`). The "Community" slot was
+  repurposed as **WhatsApp** — `https://wa.me/2347057517841`, label and
+  `aria-label` changed from "Community" to "WhatsApp", icon unchanged
+  (`MessageCircle`). The number was supplied as `+2347057517841`; the `+`
+  was dropped because WhatsApp's documented `wa.me` format takes digits
+  only. The Email link was already correct from Session 28. A repo-wide
+  search confirmed these were the only two `example.com` links left.
+- **Verified:** `npx eslint` and `npx tsc --noEmit` clean (only the
+  pre-existing `PageProps`/`LayoutProps` generated-type errors, filtered).
+  Patch was generated with `git format-patch origin/main..HEAD` and
+  test-applied to a fresh clone of GitHub before delivery.
+- **Not verified:** that the WhatsApp link opens the expected chat on a
+  real phone — worth one tap after deploy.
+- **Repo state:** `components/footer.tsx` and this file changed.
+- **Next session starts at:** N/A — ask the user what's next. Still open
+  from Session 28: a real-device look at the pricing table's sticky label
+  column, and `components/contact-form.tsx`'s `ada@company.com` example
+  placeholder (deliberately left; it's format-example text, not this
+  site's domain).
+
+---
+
 ## Decision Log
 
 (Sessions append one line here whenever the scope above tells them to "decide and
