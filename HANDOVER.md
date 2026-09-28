@@ -2072,6 +2072,32 @@ present (check `package.json` first — do not double-install).
 
 ---
 
+## Session 30 — WhatsApp Number + Pre-filled Message
+
+- **Status:** DONE
+- **Scope:** user changed the WhatsApp number and asked for a pre-filled
+  message.
+- **What changed (`components/footer.tsx` only):** the WhatsApp link is
+  now `https://wa.me/2348063156574?text=hi%20I%20am%20contacting%20edges%20Enterprise`.
+  Number supplied as `+2348063156574` (the `+` is dropped, digits only,
+  per WhatsApp's `wa.me` format). The message text is exactly what the
+  user wrote (including the lowercase "hi" and "edges Enterprise"), minus
+  its trailing space, and is URL-encoded (`%20` for spaces) as `?text=`
+  requires. The previous number (`2347057517841`, Session 29) no longer
+  appears anywhere in the repo (searched `app/` and `components/`).
+- **Verified:** `npx eslint` clean. Patch built with
+  `git format-patch origin/main..HEAD` after syncing to `origin/main`
+  (confirmed Session 29 had landed first) and test-applied to a fresh
+  clone of GitHub.
+- **Not verified:** that the link opens WhatsApp with the message
+  pre-filled on a real phone — worth one tap after deploy.
+- **Repo state:** `components/footer.tsx` and this file changed.
+- **Next session starts at:** N/A — ask the user what's next. Still open
+  from Session 28: a real-device look at the pricing table's sticky label
+  column.
+
+---
+
 ## Decision Log
 
 (Sessions append one line here whenever the scope above tells them to "decide and

@@ -32,7 +32,7 @@ const SITEMAP_COLUMNS = [
 
 const SOCIAL_LINKS = [
   { href: "https://www.edgesenterprise.com", label: "Website", icon: Globe },
-  { href: "https://wa.me/2347057517841", label: "WhatsApp", icon: MessageCircle },
+  { href: "https://wa.me/2348063156574?text=hi%20I%20am%20contacting%20edges%20Enterprise", label: "WhatsApp", icon: MessageCircle },
   { href: "mailto:contact@edgesenterprise.com", label: "Email", icon: Mail },
 ];
 
