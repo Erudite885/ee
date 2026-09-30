@@ -2209,6 +2209,58 @@ present (check `package.json` first — do not double-install).
 
 ---
 
+## Session 33 — Google Play Console Site Verification File (Pre-Cutover)
+
+- **Status:** DONE
+- **Scope:** `edgesenterprise.com` is currently hosted from a *different*
+  Vercel project under a different GitHub account
+  (`github.com/Zapier-codes/Edges-Enterprise`), and is about to be
+  repointed to **this** project. That old project serves a Google site
+  ownership verification file (used for Google Play Console) via the
+  HTML-file method, at `google2570877d8e38b9da.html` in its
+  `frontend/public/` folder. Google periodically re-checks HTML-file
+  verification, so this file must be served from whichever project
+  actually answers for the domain, or verification can be dropped. Added
+  it to this project **before** the domain cutover, so there is no gap.
+- **What changed:** cloned the old repo (`Zapier-codes/Edges-Enterprise`)
+  into the sandbox read-only, located the file at
+  `frontend/public/google2570877d8e38b9da.html`, and copied it
+  byte-for-byte (53 bytes, no trailing newline — confirmed identical via
+  a direct binary comparison, not retyped) into this project's
+  `public/google2570877d8e38b9da.html`. Content:
+  `google-site-verification: google2570877d8e38b9da.html`. Confirmed
+  this repo has no `middleware.ts` and no `rewrites`/`redirects` in
+  `next.config.ts` that could intercept a static file under `public/`,
+  so Next.js will serve it as-is at `/google2570877d8e38b9da.html` once
+  deployed — no route needed.
+- **Domain cutover is NOT part of this session** — that happens entirely
+  in Vercel's dashboard and cannot be done from this sandbox. The order
+  matters (see this session's chat for the full walkthrough the user was
+  given): (1) confirm this file is reachable at
+  `<this-project>.vercel.app/google2570877d8e38b9da.html` once this patch
+  deploys, (2) remove `edgesenterprise.com` (and `www.`) from the old
+  Vercel project's Settings → Domains, (3) add both to this project's
+  Settings → Domains — DNS is already at the registrar and already points
+  at Vercel, so no new DNS records should be needed, this is purely
+  reassigning which Vercel project the domain resolves to, (4) confirm
+  `https://edgesenterprise.com/google2570877d8e38b9da.html` still returns
+  the identical content immediately after cutover, (5) confirm Search
+  Console still shows the property as Verified — don't wait for Google's
+  next scheduled check to find out.
+- **Verified:** file content confirmed byte-identical to the source via
+  direct binary comparison (`a == b`) rather than manual retyping. No
+  code paths changed; `git status` showed only the one new file added.
+- **Repo state:** `public/google2570877d8e38b9da.html` added (new file).
+  `HANDOVER.md` updated.
+- **Next session starts at:** N/A — waiting on the user to (a) confirm
+  this file is live once deployed, then (b) perform the Vercel domain
+  cutover steps above, then (c) confirm the custom domain and Google
+  verification both work post-cutover. If verification is ever lost
+  later, re-check this exact file/path first before assuming it's a
+  Google Search Console problem.
+
+---
+
 ## Decision Log
 
 (Sessions append one line here whenever the scope above tells them to "decide and
@@ -2234,3 +2286,9 @@ log" something, so later sessions don't need to dig through commits to find out.
   the "shows Gmail address instead of alias" symptom was a Gmail-account
   setting (unverified "Send mail as" alias), not a code issue. Documented
   as the first thing to check if this symptom recurs.
+- Session 33 (Domain Cutover Prep): copied the Google Play Console site
+  verification file byte-for-byte from the old project
+  (github.com/Zapier-codes/Edges-Enterprise) into this repo's public/
+  folder ahead of the edgesenterprise.com domain cutover, so verification
+  survives the switch. Cutover itself (removing/adding the domain in
+  Vercel) is a dashboard action outside this repo, done by the user.
