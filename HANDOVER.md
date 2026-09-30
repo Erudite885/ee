@@ -2163,6 +2163,52 @@ present (check `package.json` first — do not double-install).
 
 ---
 
+## Session 32 — Fixed: Confirmation Email Showed Gmail Address, Not Alias
+
+- **Status:** DONE (Gmail account setting only — no code or env var changed)
+- **Scope:** user reported the visitor confirmation email's `From` line
+  displayed as `Edges Enterprise <uchebianca@gmail.com>` instead of the
+  intended `Edges Enterprise <contact@edgesenterprise.com>`.
+- **Root cause:** `SMTP_FROM` in Vercel was already correctly set to
+  `Edges Enterprise <contact@edgesenterprise.com>` (confirmed by the user
+  pasting it) and the code was already reading it correctly (Session 27).
+  The actual cause was on Gmail's side: `contact@edgesenterprise.com` had
+  never been added as a verified "Send mail as" alias on the
+  `uchebianca@gmail.com` account. Only `o.uche@edgesenterprise.com` (a
+  different alias) was verified there. Gmail silently drops any `From`
+  address it doesn't recognize as belonging to the authenticated account
+  and substitutes the real login address instead — it keeps the display
+  name ("Edges Enterprise") but swaps the address, which is exactly the
+  symptom reported. This is a known Gmail SMTP behavior, not a nodemailer
+  or Vercel issue, and explains why the owner notification (which uses
+  the same `SMTP_FROM`, see Session 27/31) would have shown the identical
+  problem — confirmed by asking the user to check that email's `From`
+  line, which also showed the Gmail address.
+- **Fix:** user added `contact@edgesenterprise.com` under Gmail →
+  Settings → Accounts and Import → "Send mail as" → Add another email
+  address, chose "Send through Gmail" (not a separate SMTP server, since
+  there's no mail server behind the domain — it's forward-only), and
+  completed Gmail's verification email. Confirmed present and verified
+  in that list (alongside the pre-existing `o.uche@edgesenterprise.com`
+  entry). A fresh contact-form submission after verification showed the
+  confirmation correctly as `Edges Enterprise <contact@edgesenterprise.com>`.
+- **Nothing in the repo changed.** `SMTP_FROM` was correct from the start;
+  this was purely a missing verification step on the Gmail account. If
+  this ever regresses (e.g. the alias verification lapses, or a new Gmail
+  account is used for `SMTP_USER` without re-adding the alias), the
+  symptom to look for is exactly this: `From` shows the Gmail login
+  address instead of the alias, on **both** the owner notification and
+  the visitor confirmation, since both share the same `SMTP_FROM` fallback
+  logic. Check "Send mail as" in Gmail settings before assuming it's a
+  code or env var problem.
+- **Verified:** live production test, user-confirmed correct `From`
+  address after the Gmail-side fix.
+- **Repo state:** unchanged — `HANDOVER.md` only, this entry.
+- **Next session starts at:** N/A — no queued work. Ask the user what's
+  next.
+
+---
+
 ## Decision Log
 
 (Sessions append one line here whenever the scope above tells them to "decide and
@@ -2183,3 +2229,8 @@ log" something, so later sessions don't need to dig through commits to find out.
   Email by the user's choice; WhatsApp opens a pre-filled message. The
   `ada@company.com` form placeholder stays as an example, by the user's
   choice.
+- Session 32 (Contact Form From-Address): confirmed the Session 27/31
+  `SMTP_FROM` fallback logic and Vercel config were correct all along;
+  the "shows Gmail address instead of alias" symptom was a Gmail-account
+  setting (unverified "Send mail as" alias), not a code issue. Documented
+  as the first thing to check if this symptom recurs.
